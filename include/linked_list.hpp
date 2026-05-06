@@ -3,62 +3,65 @@
 #include "Mutability.hpp"
 
 template <typename T>
-struct node {
+class forward_list {
+private:
+    class node {
     T value;
     node<T>* next;
     node(const T& value);
-};
-
-template <typename T>
-class s_list {
-private:
     node<T>* head;
     node<T>* tail;
     unsigned length;
-
-public:
-    class iterator {
+    };
+    class forward_iterator {//*, ->, ++, ++(int), ==, !=, 
         node<T>* curr;
     public:
-        iterator(node<T>* ptr);
-        iterator& operator++();
-        T& operator*();
-        const T& operator*() const;
-        int operator!=(const iterator& other) const;
-        int operator==(const iterator& other) const;
+        explicit forward_iterator(node<T>* ptr) noexcept: curr(ptr) {}
+        T& operator*() const; //возвращаем неконстанты
+        T* operator->() const;
+        forward_iterator& operator++();
+        forward_iterator operator++(int);
+        bool operator!=(const forward_iterator& other) const;
+        bool operator==(const forward_iterator& other) const;
     };
 
-    class const_iterator {
-        const node<T>* curr;
+    class const_forward_iterator {//*, ->, ++, ++(int), ==, !=, 
+        node<T>* curr;
     public:
-        const_iterator(const node<T>* ptr);
-        const_iterator& operator++();
-        const T& operator*() const;
-        int operator!=(const const_iterator& other) const;
-        int operator==(const const_iterator& other) const;
+        explicit const_forward_iterator(node<T>* ptr) noexcept: curr(ptr) {}
+        const T& operator*() const; //возвращаем константы
+        const T* operator->() const;
+        const_forward_iterator& operator++();
+        const_forward_iterator operator++(int);
+        bool operator!=(const const_forward_iterator& other) const;
+        bool operator==(const const_forward_iterator& other) const;
     };
+public:
+    
 
-    s_list();
-    explicit s_list(unsigned initial_size);
-    s_list(const T* data, unsigned initial_size);
-    s_list(const s_list& other);
-    ~s_list();
+    
+
+    forward_list();
+    explicit forward_list(unsigned initial_size);
+    forward_list(const T* data, unsigned initial_size);
+    forward_list(const forward_list& other);
+    ~forward_list();
 
     T& operator[](unsigned index);
     const T& operator[](unsigned index) const;
-    s_list& operator=(s_list other);
-    s_list operator+(const s_list& right);
+    forward_list& operator=(forward_list other);
+    forward_list operator+(const forward_list& right);
 
     unsigned size() const;
     T get_first() const;
     T get_last() const;
 
-    iterator begin();
-    iterator end();
-    const_iterator begin() const;
-    const_iterator end() const;
+    forward_iterator begin();
+    forward_iterator end();
+    const_forward_iterator begin() const;
+    const_forward_iterator end() const;
 
-    s_list<T> slice(unsigned start, unsigned end);
+    forward_list<T> slice(unsigned start, unsigned end);
 
 };
 

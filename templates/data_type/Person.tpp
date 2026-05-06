@@ -12,6 +12,7 @@ person::person(){
     middle_name[0] = '\0';
     last_name = new char[1];
     last_name[0] = '\0';
+    role = role::student;
 }
 
 person::~person(){

@@ -1,65 +1,50 @@
 #pragma once
-#include <concepts>
-#include <cstddef>
+#include "sequence.hpp"
+#include "bit.hpp"
+#include "errors.hpp"
+#include "dyn_arr.hpp"
+#include <memory>
 
-
-template <std::integral T>
-class bit_proxy {
-    T& ref;
-    unsigned idx;
+template <Mutability M, std::integral T = unsigned int>
+class bit_seq : public sequence<bit<T>> {
+private:
+    std::unique_ptr<dyn_arr<bit<T>>> bit_s;
 public:
-    bit_proxy(T& value, size_t bit) : ref(value), idx(bit) {}
-    bit_proxy& operator=(bool val) {
-        if (val) { ref |= (static_cast<T>(1) << idx); }
-        else { ref &= ~(static_cast<T>(1) << idx); }
-        return *this;
-    }
+    explicit bit_seq(std::unique_ptr<dyn_arr<bit<T>>> arr) : bit_s(std::move(arr)) {}
+    bit_seq();
+    bit_seq(bit<T>* items, unsigned count);
+    bit_seq(const bit_seq& other);
+    bit_seq(unsigned initial_size);
+    ~bit_seq() = default;
 
-    operator bool() const { return (ref >> idx) & 1; }
+    bit<T> get_first() const override;
+    bit<T> get_last() const override;
+    unsigned size() const override;
+    bit<T>& operator[](unsigned index) override;
+    const bit<T>& operator[](unsigned index) const override;
+    bit_seq& operator=(const bit_seq& other);
+
+    sequence<bit<T>>* get_subsequence(unsigned start, unsigned end) const override;
+    sequence<bit<T>>* concat(sequence<bit<T>>* other) override;
+    sequence<bit<T>>* append(const bit<T>& val) override;
+    sequence<bit<T>>* prepend(const bit<T>& val) override;
+    sequence<bit<T>>* insert(const bit<T>& val, unsigned index) override;
+    unsigned find(const bit<T>& value) const override;
+
+    bit_seq<M, T> operator&(const bit<T>& other) const;
+    bit_seq<M, T> operator|(const bit<T>& other) const;
+    bit_seq<M, T> operator^(const bit<T>& other) const;
+    bit_seq<M, T> operator~() const;
+
+    template <typename Func>
+    bit_seq<M, T> map(Func f) const;
+
+    template <typename Func>
+    bit_seq<M, T> where(Func f) const;
+
+    template <typename Func, typename U>
+    U reduce(Func f, U initial) const;
+    using value_type = bit<T>;
 };
 
-template <std::integral T>
-class bit {
-    T value;
-    static constexpr unsigned len {sizeof(T)};
-    using proxy = bit_proxy<T>;
-public:
-    bit(): value(0) {}
-    bit(T val): value(val){}
-    bit(const bit& other) value(other.value){}
-
-    bit& operator=(const bit& other){
-        if (this == &other){
-            return *this;
-        }
-        value = other.value;
-        return *this;
-    }
-    unsigned size(){
-        return len;
-    }
-    bool operator[](size_t idx) const{
-        return (value>>idx)&static_cast<T>(1);
-    }
-    bit_proxy<T> operator[](size_t idx) {
-        return bit_proxy<T>(value, idx);
-    }
-    bit operator&(const bit& other){
-        return bit(value&other.value);
-    }
-
-    bit operator|(const bit& other){
-        return bit(value|other.value);
-    }
-    bit operator^(const bit& other){
-        return bit(value^other.value);
-    }
-
-    bit operator~(const bit& other){
-        return bit(~value)
-    }
-
-    T get_value() const{return value;}
-
-    operator bool() const {return value !=0;}
-};
+#include "bit_seq.tpp"

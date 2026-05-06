@@ -4,7 +4,7 @@
 #include "dyn_arr.hpp"
 #include "Mutability.hpp"
 
-template<Mutability M, typename T>
+template<typename T, Mutability M>
 class array_seq : public sequence<T> {
 private:
     dyn_arr<T>* arr;
@@ -39,16 +39,14 @@ public:
     auto end()   const { return arr->end(); }
 
     template <typename Func>
-    array_seq<M,T>* map(Func f);
+    sequence<T>* map(Func f);
 
     template <typename Func>
-    array_seq<M,T>* where(Func f);
+    sequence<T>* where(Func f);
 
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
-
-    using iterator = typename dyn_arr<T>::iterator;
-    using const_iterator = typename dyn_arr<T>::const_iterator;
+    using value_type = T;
 };
 
 #include "array_seq.tpp"

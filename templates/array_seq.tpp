@@ -1,64 +1,64 @@
 #include "array_seq.hpp"
 #include "errors.hpp"
 
-template<Mutability M, typename T>
-array_seq<M,T>::array_seq() : arr(new dyn_arr<T>()) {}
+template<typename T, Mutability M>
+array_seq<T, M>::array_seq(): arr(new dyn_arr<T>()) {}
 
-template<Mutability M, typename T>
-array_seq<M,T>::array_seq(unsigned initial_size) : arr(new dyn_arr<T>(initial_size)) {
-    if (arr == nullptr) THROW(ERR_MEMORY);
+template<typename T, Mutability M>
+array_seq<T, M>::array_seq(unsigned initial_size) : arr(new dyn_arr<T>(initial_size)) {
+    if (arr == nullptr) throw null_ptr();
 }
 
-template<Mutability M, typename T>
-array_seq<M,T>::array_seq(const T* items, unsigned count) : arr(new dyn_arr<T>(items, count)) {
-    if (arr == nullptr) THROW(ERR_MEMORY);
+template<typename T, Mutability M>
+array_seq<T, M>::array_seq(const T* items, unsigned count) : arr(new dyn_arr<T>(items, count)) {
+    if (arr == nullptr) throw null_ptr();
 }
 
-template<Mutability M, typename T>
-array_seq<M,T>::array_seq(const array_seq& other) : arr(new dyn_arr<T>(*other.arr)) {
-    if (arr == nullptr) THROW(ERR_MEMORY);
+template<typename T, Mutability M>
+array_seq<T, M>::array_seq(const array_seq& other) : arr(new dyn_arr<T>(*other.arr)) {
+    if (arr == nullptr) throw null_ptr();
 }
 
-template<Mutability M, typename T>
-array_seq<M,T>::array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {
-    if (arr == nullptr) THROW(ERR_MEMORY);
+template<typename T, Mutability M>
+array_seq<T, M>::array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {
+    if (arr == nullptr) throw null_ptr();
 }
 
-template<Mutability M, typename T>
-array_seq<M,T>::~array_seq() {
+template<typename T, Mutability M>
+array_seq<T, M>::~array_seq() {
     delete arr;
 }
 
-template<Mutability M, typename T>
-array_seq<M,T>& array_seq<M,T>::operator=(const array_seq& other) {
+template<typename T, Mutability M>
+array_seq<T, M>& array_seq<T, M>::operator=(const array_seq& other) {
     if (this != &other) {
         dyn_arr<T>* new_arr = new dyn_arr<T>(*other.arr);
-        if (new_arr == nullptr) THROW(ERR_MEMORY);
+        if (new_arr == nullptr) throw null_ptr();
         delete arr;
         arr = new_arr;
     }
     return *this;
 }
 
-template<Mutability M, typename T>
-T array_seq<M,T>::get_first() const {
-    if (size() == 0) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+T array_seq<T, M>::get_first() const {
+    if (size() == 0) throw empty_container();
     return (*arr)[0];
 }
 
-template<Mutability M, typename T>
-T array_seq<M,T>::get_last() const {
-    if (size() == 0) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+T array_seq<T, M>::get_last() const {
+    if (size() == 0) throw empty_container();
     return (*arr)[size() - 1];
 }
 
-template<Mutability M, typename T>
-unsigned array_seq<M,T>::size() const {
+template<typename T, Mutability M>
+unsigned array_seq<T, M>::size() const {
     return arr->size();
 }
 
-template<Mutability M, typename T>
-sequence<T>* array_seq<M,T>::append(const T& item) {
+template<typename T, Mutability M>
+sequence<T>* array_seq<T, M>::append(const T& item) {
     if constexpr (M == Mutability::Mutable) {
         arr->resize(arr->size() + 1);
         (*arr)[arr->size() - 1] = item;
@@ -66,7 +66,7 @@ sequence<T>* array_seq<M,T>::append(const T& item) {
     } else {
         array_seq<Mutability::Immutable, T>* new_seq =
             new array_seq<Mutability::Immutable, T>(arr->size() + 1);
-        if (!new_seq) THROW(ERR_MEMORY);
+        if (!new_seq) throw null_ptr();
         for (unsigned i = 0; i<arr->size(); i++){
             (*new_seq)[i] = (*arr)[i];
         }
@@ -75,8 +75,8 @@ sequence<T>* array_seq<M,T>::append(const T& item) {
     }
 }
 
-template<Mutability M, typename T>
-sequence<T>* array_seq<M,T>::prepend(const T& item) {
+template<typename T, Mutability M>
+sequence<T>* array_seq<T, M>::prepend(const T& item) {
     if constexpr (M == Mutability::Mutable) {
         arr->resize(arr->size() + 1);
         for (unsigned i = arr->size() - 1; i > 0; --i)
@@ -85,21 +85,21 @@ sequence<T>* array_seq<M,T>::prepend(const T& item) {
         return this;
     } else {
         dyn_arr<T>* new_arr = new dyn_arr<T>(arr->size() + 1);
-        if (!new_arr) THROW(ERR_MEMORY);
+        if (!new_arr) throw null_ptr();
         (*new_arr)[0] = item;
         for (unsigned i = 0; i < arr->size(); ++i)
             (*new_arr)[i + 1] = (*arr)[i];
         array_seq<Mutability::Immutable, T>* result =
             new array_seq<Mutability::Immutable, T>(*new_arr);
-        if (!result) THROW(ERR_MEMORY);
+        if (!result) throw null_ptr();
         delete new_arr;
         return result;
     }
 }
 
-template<Mutability M, typename T>
-sequence<T>* array_seq<M,T>::insert(const T& item, unsigned index) {
-    if (index > arr->size()) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+sequence<T>* array_seq<T, M>::insert(const T& item, unsigned index) {
+    if (index > arr->size()) throw index_out_of_range();
     if (index == 0) return prepend(item);
     if (index == arr->size()) return append(item);
 
@@ -112,7 +112,7 @@ sequence<T>* array_seq<M,T>::insert(const T& item, unsigned index) {
     } else {
         unsigned ns = arr->size() + 1;
         dyn_arr<T>* new_arr = new dyn_arr<T>(ns);
-        if (new_arr == nullptr) THROW(ERR_MEMORY);
+        if (new_arr == nullptr) throw null_ptr();
         for (unsigned i = 0; i < index; ++i)
             (*new_arr)[i] = (*arr)[i];
         (*new_arr)[index] = item;
@@ -120,18 +120,18 @@ sequence<T>* array_seq<M,T>::insert(const T& item, unsigned index) {
             (*new_arr)[i + 1] = (*arr)[i];
         array_seq<Mutability::Immutable, T>* result =
             new array_seq<Mutability::Immutable, T>(*new_arr);
-        if (result == nullptr) THROW(ERR_MEMORY);
+        if (result == nullptr) throw null_ptr();
         delete new_arr;
         return result;
     }
 }
 
-template<Mutability M, typename T>
-sequence<T>* array_seq<M,T>::concat(sequence<T>* other) {
-    if (other == nullptr) THROW(ERR_NULL);
+template<typename T, Mutability M>
+sequence<T>* array_seq<T, M>::concat(sequence<T>* other) {
+    if (other == nullptr) throw null_ptr();
     array_seq<Mutability::Immutable, T>* result =
         new array_seq<Mutability::Immutable, T>(*arr);
-    if (result == nullptr) THROW(ERR_MEMORY);
+    if (result == nullptr) throw null_ptr();
     for (unsigned i = 0; i < other->size(); ++i) {
         result = static_cast<array_seq<Mutability::Immutable, T>*>(
             result->append((*other)[i])
@@ -140,12 +140,12 @@ sequence<T>* array_seq<M,T>::concat(sequence<T>* other) {
     return result;
 }
 
-template<Mutability M, typename T>
-sequence<T>* array_seq<M,T>::get_subsequence(unsigned start, unsigned end) const {
-    if (start > end || end > size()) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+sequence<T>* array_seq<T, M>::get_subsequence(unsigned start, unsigned end) const {
+    if (start > end || end > size()) throw invalid_argument();
     array_seq<Mutability::Immutable, T>* sub =
         new array_seq<Mutability::Immutable, T>();
-    if (sub == nullptr) THROW(ERR_MEMORY);
+    if (sub == nullptr) throw null_ptr();
     for (unsigned i = start; i < end; ++i) {
         sub = static_cast<array_seq<Mutability::Immutable, T>*>(
             sub->append((*arr)[i])
@@ -154,45 +154,45 @@ sequence<T>* array_seq<M,T>::get_subsequence(unsigned start, unsigned end) const
     return sub;
 }
 
-template<Mutability M, typename T>
-unsigned array_seq<M,T>::find(const T& value) const {
+template<typename T, Mutability M>
+unsigned array_seq<T, M>::find(const T& value) const {
     for (unsigned i = 0; i < size(); ++i) {
         if ((*arr)[i] == value) return i;
     }
-    THROW(ERR_INCORRECT_INDEX);
+    throw invalid_argument();
     return 0;
 }
 
-template<Mutability M, typename T>
-T& array_seq<M,T>::operator[](unsigned index) {
-    if (index >= size()) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+T& array_seq<T, M>::operator[](unsigned index) {
+    if (index >= size()) throw index_out_of_range();
     return (*arr)[index];
 }
 
-template<Mutability M, typename T>
-const T& array_seq<M,T>::operator[](unsigned index) const {
-    if (index >= size()) THROW(ERR_INCORRECT_INDEX);
+template<typename T, Mutability M>
+const T& array_seq<T, M>::operator[](unsigned index) const {
+    if (index >= size()) throw index_out_of_range();
     return (*arr)[index];
 }
 
-template<Mutability M, typename T>
+template<typename T, Mutability M>
 template <typename Func>
-array_seq<M,T>* array_seq<M,T>::map(Func f) {
+sequence<T>* array_seq<T, M>::map(Func f) {
     if constexpr (M == Mutability::Mutable) {
         for (auto& x : *arr) x = f(x);
         return this;
     } else {
         array_seq<Mutability::Immutable, T>* new_arr =
             new array_seq<Mutability::Immutable, T>(*arr);
-        if (new_arr == nullptr) THROW(ERR_MEMORY);
+        if (new_arr == nullptr) throw null_ptr();
         for (auto& x : *(new_arr->arr)) x = f(x);
         return new_arr;
     }
 }
 
-template<Mutability M, typename T>
+template<typename T, Mutability M>
 template <typename Func>
-array_seq<M,T>* array_seq<M,T>::where(Func f) {
+sequence<T>* array_seq<T, M>::where(Func f) {
     if constexpr (M == Mutability::Mutable) {
         unsigned wr_i = 0;
         for (unsigned r_i = 0; r_i < arr->size(); ++r_i) {
@@ -205,7 +205,7 @@ array_seq<M,T>* array_seq<M,T>::where(Func f) {
         return this;
     } else {
         dyn_arr<T>* new_data = new dyn_arr<T>(arr->size());
-        if (!new_data) THROW(ERR_MEMORY);
+        if (!new_data) throw null_ptr();
         unsigned pos = 0;
         for (unsigned i = 0; i < arr->size(); ++i) {
             if (f((*arr)[i])) {
@@ -214,17 +214,17 @@ array_seq<M,T>* array_seq<M,T>::where(Func f) {
         }
         array_seq<Mutability::Immutable, T>* result =
             new array_seq<Mutability::Immutable, T>(pos);
-        if (!result) THROW(ERR_MEMORY);
+        if (!result) throw null_ptr();
         for (unsigned i = 0; i < pos; ++i){(*result)[i] = (*new_data)[i];}
         delete new_data;
         return result;
     }
 }
 
-template<Mutability M, typename T>
+template<typename T, Mutability M>
 template <typename Func, typename U>
-U array_seq<M,T>::reduce(Func f, U initial) const {
-    if (arr->size() == 0) THROW(ERR_INCORRECT_INDEX);
+U array_seq<T, M>::reduce(Func f, U initial) const {
+    if (arr->size() == 0) throw empty_container();
     U acc = f(initial, (*arr)[0]);
     for (unsigned i = 1; i < arr->size(); ++i) {
         acc = f(acc, (*arr)[i]);

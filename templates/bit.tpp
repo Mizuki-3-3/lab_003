@@ -34,13 +34,13 @@ unsigned bit<T>::size() const { return len; }
 
 template <std::integral T>
 bool bit<T>::operator[](size_t idx) const {
-    if (idx >= len) throw index_out_of_range()();
+    if (idx >= len) throw index_out_of_range();
     return (value >> idx) & static_cast<T>(1);
 }
 
 template <std::integral T>
 bit_proxy<T> bit<T>::operator[](size_t idx) {
-    if (idx >= len) throw index_out_of_range()();
+    if (idx >= len) throw index_out_of_range();
     return bit_proxy<T>(value, idx);
 }
 
@@ -61,3 +61,22 @@ T bit<T>::get_value() const { return value; }
 
 template <std::integral T>
 bit<T>::operator bool() const { return value != 0; }
+
+
+template <std::integral T>
+template <typename U>
+bit<T> bit<T>::operator&(U other) const {
+    return bit(value & static_cast<T>(other));
+}
+
+template <std::integral T>
+template <typename U>
+bit<T> bit<T>::operator|(U other) const {
+    return bit(value | static_cast<T>(other));
+}
+
+template <std::integral T>
+template <typename U>
+bit<T> bit<T>::operator^(U other) const {
+    return bit(value ^ static_cast<T>(other));
+}

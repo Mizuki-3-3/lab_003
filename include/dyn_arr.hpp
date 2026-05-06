@@ -1,36 +1,72 @@
 #pragma once
 
 #include "Mutability.hpp"
+#include <utility>
 
 template<typename T>
 class dyn_arr {
 private:
     T* data;
     unsigned length;
-public:
-    class iterator {
+
+    class contiguous_iterator{ //*, ->, ++, --, ==,!=, +=,+,-=, -,[], -,><
         T* current;
     public:
-        iterator(T* ptr);
-        iterator& operator++();
-        iterator operator++(int);
+        contiguous_iterator(T* ptr);
         T& operator*();
-        const T& operator*() const;
-        int operator!=(iterator& other) const;
-        int operator==(iterator& other) const;
+        T* operator->();
+
+        contiguous_iterator& operator++();
+        contiguous_iterator operator++(int);
+        contiguous_iterator& operator--();
+        contiguous_iterator operator--(int);
+
+        bool operator!=(contiguous_iterator& other) const;
+        bool operator==(contiguous_iterator& other) const;
+
+        contiguous_iterator& operator+=(std::ptrdiff_t n);
+        contiguous_iterator operator+(std::ptrdiff_t n);
+        contiguous_iterator& operator-=(std::ptrdiff_t n);
+        contiguous_iterator operator-(std::ptrdiff_t n);
+
+        bool operator==(const contiguous_iterator& other) const;
+        bool operator!=(const contiguous_iterator& other) const;
+        bool operator< (const contiguous_iterator& other) const;
+        bool operator> (const contiguous_iterator& other) const;
+        bool operator<=(const contiguous_iterator& other) const;
+        bool operator>=(const contiguous_iterator& other) const;
+
     };
     
-    class const_iterator {
+    class const_contiguous_iterator {
         const T* current;
     public:
-        const_iterator(const T* ptr);
-        const_iterator& operator++();
-        const_iterator operator++(int);
-        const T& operator*() const;
-        int operator!=(const const_iterator& other) const;
-        int operator==(const const_iterator& other) const;
-    };
+        const_contiguous_iterator(T* ptr);
+        T& operator*();
+        T* operator->();
 
+        const_contiguous_iterator& operator++();
+        const_contiguous_iterator operator++(int);
+        const_contiguous_iterator& operator--();
+        const_contiguous_iterator operator--(int);
+
+        bool operator!=(const_contiguous_iterator& other) const;
+        bool operator==(const_contiguous_iterator& other) const;
+
+        const_contiguous_iterator& operator+=(std::ptrdiff_t n);
+        const_contiguous_iterator operator+(std::ptrdiff_t n);
+        const_contiguous_iterator& operator-=(std::ptrdiff_t n);
+        const_contiguous_iterator operator-(std::ptrdiff_t n);
+
+        bool operator==(const const_contiguous_iterator& other) const;
+        bool operator!=(const const_contiguous_iterator& other) const;
+        bool operator< (const const_contiguous_iterator& other) const;
+        bool operator> (const const_contiguous_iterator& other) const;
+        bool operator<=(const const_contiguous_iterator& other) const;
+        bool operator>=(const const_contiguous_iterator& other) const;
+
+    };
+public:
     dyn_arr();
     explicit dyn_arr(unsigned initial_size);
     dyn_arr(const T* items, unsigned initial_size);
@@ -40,10 +76,10 @@ public:
     T& operator[](unsigned index);
     const T& operator[](unsigned index) const;
 
-    iterator begin();
-    const_iterator begin() const;
-    iterator end();
-    const_iterator end() const;
+    contiguous_iterator begin();
+    const_contiguous_iterator begin() const;
+    contiguous_iterator end();
+    const_contiguous_iterator end() const;
 
     dyn_arr& operator=(const dyn_arr&) = delete;
     dyn_arr& operator=(dyn_arr other);

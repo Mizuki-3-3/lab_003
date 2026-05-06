@@ -2,39 +2,37 @@
 
 #include <exception>
 #include <cstdio>
-
-enum errors {
-    NO_ERR = 0,
-    ERR_NULL,
-    ERR_MEMORY,
-    ERR_INCORRECT_INDEX,
-    ERR_TYPE_MISMATCH,
-};
+#include "string"
 
 class exception_ : public std::exception {
 private:
-    errors err_code;
-    const char* stack_files[10];
-    int stack_lines[10];
-    int stack_depth;
-    mutable char what_buf[256];
-
+    std::string message;
 public:
-    exception_(errors code, const char* file, int line) noexcept;
-    void add_context(const char* file, int line) noexcept;
-    errors get_code() const noexcept;
-    const char* what() const noexcept override;
-    void print_stack(FILE* out = stderr) const;
+    exception_(const std::string msg): message(msg){}
+    const char* what() const noexcept override{return message.c_str();}
 };
 
-const char* err_get_message(errors err);
+class index_out_of_range: public exception_{
+public:
+    index_out_of_range(): exception_("index out of range"){}
+};
 
-#define TRY try {
-#define CATCH(err_var) } catch (const exception_& e) { err_var = e.get_code();
-#define CATCH_TESTS } catch (const exception_&) {
-#define ETRY }
-#define THROW(err_code) do { throw exception_(err_code, __FILE__, __LINE__); } while(0)
-#define RETURN_ON_ERROR(cond, err_code) do { if (cond) { THROW(err_code); return; } } while(0)
-#define RETURN_VAL_ON_ERROR(cond, err_code, ret) do { if (cond) { THROW(err_code); return ret; } } while(0)
+class invalid_argument: public exception_{
+public:
+    invalid_argument(): exception_("invalid argument"){}
+};
 
-#include "errors.tpp" 
+class null_ptr: public exception_{
+public:
+    null_ptr(): exception_("null pointer"){}
+};
+
+class size_mismatch: public exception_{
+public:
+    size_mismatch(): exception_("size mismatch"){}
+};
+
+class empty_container: public exception_{
+public:
+    empty_container(): exception_("container is empty"){}
+};

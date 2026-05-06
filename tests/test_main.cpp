@@ -1,2 +1,5 @@
 #include "tests.hpp"
-TEST_ENTRY_POINT
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
