@@ -2,16 +2,15 @@
 
 #include "sequence.hpp"
 #include "linked_list.hpp"
-#include "Mutability.hpp"
 
-template<typename T, Mutability M>
+template<typename T>
 class list_seq : public sequence<T> {
 private:
     forward_list<T>* list;
 
 public:
     list_seq();
-    explicit list_seq(const s_list<T>& other);
+    explicit list_seq(const forward_list<T>& other);
     list_seq(const T* items, unsigned count);
     list_seq(const list_seq& other);
     ~list_seq();

@@ -1,19 +1,22 @@
 #pragma once
+
 #include "sequence.hpp"
 #include "dyn_arr.hpp"
 
 template<typename T>
-class array_seq : public sequence<T> {
+class immutable_array_seq : public sequence<T> {
 private:
     dyn_arr<T>* arr;
+
 public:
-    array_seq();
-    explicit array_seq(unsigned initial_size);
-    array_seq(const T* items, unsigned count);
-    array_seq(const array_seq& other);
-    array_seq(const dyn_arr<T>& other);
-    ~array_seq();
-    array_seq& operator=(const array_seq& other);
+    immutable_array_seq();
+    explicit immutable_array_seq(unsigned initial_size);
+    immutable_array_seq(const T* items, unsigned count);
+    immutable_array_seq(const immutable_array_seq& other);
+    immutable_array_seq(const dyn_arr<T>& other);
+    ~immutable_array_seq();
+
+    immutable_array_seq& operator=(const immutable_array_seq& other);
 
     T get_first() const override;
     T get_last() const override;
@@ -36,12 +39,13 @@ public:
 
     template <typename Func>
     sequence<T>* map(Func f);
+
     template <typename Func>
     sequence<T>* where(Func f);
+
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
-
     using value_type = T;
 };
 
-#include "array_seq.tpp"
+#include "immutable_array_seq.tpp"

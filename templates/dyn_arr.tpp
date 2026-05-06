@@ -145,7 +145,7 @@ template<typename T>
 dyn_arr<T>::const_contiguous_iterator& dyn_arr<T>::const_contiguous_iterator::operator-=(std::ptrdiff_t n){
     current -= n;
     return *this;
-}
+0}
 template<typename T>
 dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::const_contiguous_iterator::operator-(std::ptrdiff_t n){
     return contiguous_iterator(current-n);

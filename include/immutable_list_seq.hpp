@@ -1,19 +1,21 @@
 #pragma once
+
 #include "sequence.hpp"
-#include "dyn_arr.hpp"
+#include "linked_list.hpp"
 
 template<typename T>
-class array_seq : public sequence<T> {
+class immutable_list_seq : public sequence<T> {
 private:
-    dyn_arr<T>* arr;
+    forward_list<T>* list;
+
 public:
-    array_seq();
-    explicit array_seq(unsigned initial_size);
-    array_seq(const T* items, unsigned count);
-    array_seq(const array_seq& other);
-    array_seq(const dyn_arr<T>& other);
-    ~array_seq();
-    array_seq& operator=(const array_seq& other);
+    immutable_list_seq();
+    explicit immutable_list_seq(const forward_list<T>& other);
+    immutable_list_seq(const T* items, unsigned count);
+    immutable_list_seq(const immutable_list_seq& other);
+    ~immutable_list_seq();
+
+    immutable_list_seq& operator=(const immutable_list_seq& other);
 
     T get_first() const override;
     T get_last() const override;
@@ -29,19 +31,20 @@ public:
     T& operator[](unsigned index) override;
     const T& operator[](unsigned index) const override;
 
-    auto begin() { return arr->begin(); }
-    auto end()   { return arr->end(); }
-    auto begin() const { return arr->begin(); }
-    auto end()   const { return arr->end(); }
+    auto begin() { return list->begin(); }
+    auto end()   { return list->end(); }
+    auto begin() const { return list->begin(); }
+    auto end()   const { return list->end(); }
 
     template <typename Func>
     sequence<T>* map(Func f);
+
     template <typename Func>
     sequence<T>* where(Func f);
+
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
-
     using value_type = T;
 };
 
-#include "array_seq.tpp"
+#include "immutable_list_seq.tpp"
