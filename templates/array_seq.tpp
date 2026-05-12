@@ -56,14 +56,14 @@ unsigned array_seq<T>::size() const {
 }
 
 template<typename T>
-sequence<T>* array_seq<T>::append(const T& item) {
+sequence<T>* array_seq<T>::push_back(const T& item) {
     arr->resize(arr->size() + 1);
     (*arr)[arr->size() - 1] = item;
     return this;
 }
 
 template<typename T>
-sequence<T>* array_seq<T>::prepend(const T& item) {
+sequence<T>* array_seq<T>::push_front(const T& item) {
     arr->resize(arr->size() + 1);
     for (unsigned i = arr->size() - 1; i > 0; --i)
         (*arr)[i] = (*arr)[i - 1];
@@ -74,8 +74,8 @@ sequence<T>* array_seq<T>::prepend(const T& item) {
 template<typename T>
 sequence<T>* array_seq<T>::insert(const T& item, unsigned index) {
     if (index > arr->size()) throw index_out_of_range();
-    if (index == 0) return prepend(item);
-    if (index == arr->size()) return append(item);
+    if (index == 0) return push_front(item);
+    if (index == arr->size()) return push_back(item);
     arr->resize(arr->size() + 1);
     for (unsigned i = arr->size() - 1; i > index; --i)
         (*arr)[i] = (*arr)[i - 1];

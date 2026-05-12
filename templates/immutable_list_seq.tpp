@@ -51,7 +51,7 @@ unsigned immutable_list_seq<T>::size() const {
 }
 
 template<typename T>
-sequence<T>* immutable_list_seq<T>::append(const T& item) {
+sequence<T>* immutable_list_seq<T>::push_back(const T& item) {
     unsigned new_size = list->size() + 1;
     forward_list<T>* new_list = new forward_list<T>(new_size);
     if (!new_list) throw null_ptr();
@@ -64,7 +64,7 @@ sequence<T>* immutable_list_seq<T>::append(const T& item) {
 }
 
 template<typename T>
-sequence<T>* immutable_list_seq<T>::prepend(const T& item) {
+sequence<T>* immutable_list_seq<T>::push_front(const T& item) {
     unsigned new_size = list->size() + 1;
     forward_list<T>* new_list = new forward_list<T>(new_size);
     if (!new_list) throw null_ptr();
@@ -79,8 +79,8 @@ sequence<T>* immutable_list_seq<T>::prepend(const T& item) {
 template<typename T>
 sequence<T>* immutable_list_seq<T>::insert(const T& item, unsigned index) {
     if (index > list->size()) throw index_out_of_range();
-    if (index == 0) return prepend(item);
-    if (index == list->size()) return append(item);
+    if (index == 0) return push_front(item);
+    if (index == list->size()) return push_back(item);
     unsigned new_size = list->size() + 1;
     forward_list<T>* new_list = new forward_list<T>(new_size);
     if (!new_list) throw null_ptr();

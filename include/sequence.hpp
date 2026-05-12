@@ -9,8 +9,8 @@ public:
     virtual T get_last() const = 0;
     virtual unsigned size() const = 0;
 
-    virtual sequence<T>* append(const T& item) = 0;
-    virtual sequence<T>* prepend(const T& item) = 0;
+    virtual sequence<T>* push_back(const T& item) = 0;
+    virtual sequence<T>* push_front(const T& item) = 0;
     virtual sequence<T>* insert(const T& item, unsigned index) = 0;
     virtual sequence<T>* concat(sequence<T>* other) = 0;
 

@@ -1,22 +1,22 @@
 #pragma once
 
-#include "Mutability.hpp"
-
 template <typename T>
 class forward_list {
 private:
-    class node {
+    struct node {
     T value;
-    node<T>* next;
-    node(const T& value);
-    node<T>* head;
-    node<T>* tail;
-    unsigned length;
+    node* next;
+    node(const T& val);
     };
+    
+    node* head;
+    node* tail;
+    unsigned length;
+
     class forward_iterator {//*, ->, ++, ++(int), ==, !=, 
-        node<T>* curr;
+        node* curr;
     public:
-        explicit forward_iterator(node<T>* ptr) noexcept: curr(ptr) {}
+        explicit forward_iterator(node* ptr) noexcept: curr(ptr) {}
         T& operator*() const; //возвращаем неконстанты
         T* operator->() const;
         forward_iterator& operator++();
@@ -26,9 +26,9 @@ private:
     };
 
     class const_forward_iterator {//*, ->, ++, ++(int), ==, !=, 
-        node<T>* curr;
+        node* curr;
     public:
-        explicit const_forward_iterator(node<T>* ptr) noexcept: curr(ptr) {}
+        explicit const_forward_iterator(node* ptr) noexcept: curr(ptr) {}
         const T& operator*() const; //возвращаем константы
         const T* operator->() const;
         const_forward_iterator& operator++();
@@ -42,9 +42,9 @@ public:
     
 
     forward_list();
-    explicit forward_list(unsigned initial_size);
-    forward_list(const T* data, unsigned initial_size);
-    forward_list(const forward_list& other);
+    explicit forward_list(unsigned initial_size) noexcept;
+    forward_list(const T* data, unsigned initial_size) noexcept;
+    forward_list(const forward_list& other) noexcept;
     ~forward_list();
 
     T& operator[](unsigned index);

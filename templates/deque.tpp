@@ -1,365 +1,304 @@
 #include "deque.hpp"
 
 //seqment
-template <typename T>
-deque<T>::segment::segment(): segment_(T[8]){}
+template <template<typename> class Container, typename T>
+deque<Container, T>::segment::segment(): data(Container<T>(segment_size)){}
 
-template <typename T>
-deque<T>::segment::segment(size_t initial_size): data(initial_size? new T[initial_size]: nullptr),length(initial_size), first(0), count(0){}
+template <template<typename> class Container, typename T>
+deque<Container, T>::segment::segment(const segment& other): data(other.data) {}
 
-template <typename T>
-deque<T>::segment::segment(const segment& other): length(other.length), first(0), count(other.count) {
-    data = new T[length];
-    for (size_t i = 0; i < count; ++i)
-        data[i] = other[(other.first + i) % other.length];
-    first = 0;
+template <template<typename> class Container, typename T>
+size_t deque<Container, T>::segment::size() const { return segment_size; }
+
+template <template<typename> class Container, typename T>
+T& deque<Container, T>::segment::operator[](size_t idx) {
+    return data[idx];
 }
 
-template <typename T>
-size_t deque<T>::segment::size() const { return count; }
-
-template <typename T>
-size_t deque<T>::segment::capacity() const { return length; }
-
-template <typename T>
-bool deque<T>::segment::empty() const { return count == 0; }
-
-template <typename T>
-bool deque<T>::segment::full() const { return count == length; }
-
-template <typename T>
-deque<T>::segment::~segment(): {delete[] data;}
-
-template <typename T>
-T& deque<T>::segment::front() { return data[first]; }
-
-template <typename T>
-const T& deque<T>::segment::front() const { return data[first]; }
-
-template <typename T>
-T& deque<T>::segment::back() { return data[(first + count - 1) % length]; }
-
-template <typename T>
-const T& deque<T>::segment::back() const { return data[(first + count - 1) % length]; }
-
-template <typename T>
-void deque<T>::segment::push_front(const T& value) {
-    if (full()) throw full_segment();
-    first = (first == 0) ? length - 1 : first - 1;
-    data[first] = value;
-    ++count;
+template <template<typename> class Container, typename T>
+const T& deque<Container, T>::segment::operator[](size_t idx) const {
+    return data[idx];
 }
 
-template <typename T>
-void deque<T>::segment::push_back(const T& value) {
-    if (full()) throw full_segment();
-    data[(first + count) % length] = value;
-    ++count;
+template <template<typename> class Container, typename T>
+Container<T>& deque<Container, T>::segment::operator*(){
+    return data;
 }
 
-template <typename T>
-T& deque<T>::segment::pop_front() {
-    if (empty()) throw empty_segment();
-    first = (first + 1) % length;
-    --count;
-    return data[first-1];
+template <template<typename> class Container, typename T>
+Container<T>* deque<Container, T>::segment::operator->() {
+    return &data;
 }
 
-template <typename T>
-T& deque<T>::segment::pop_back() {
-    if (empty()) throw empty_segment();
-    --count;
-    return data[first+count]
+//deque
+template <template<typename> class Container, typename T>
+deque<Container, T>::~deque(){
+    for (segment* seg : map)
+        delete seg;
 }
 
-template <typename T>
-T& deque<T>::segment::operator[](size_t idx) {
-    return data[(first + idx) % length];
+template <template<typename> class Container, typename T>
+deque<Container, T>::deque(size_t initial_size) : deque() {
+    for (size_t i = 0; i < initial_size; i++)
+        push_back(T{});
 }
 
-template <typename T>
-const T& deque<T>::segment::operator[](size_t idx) const {
-    return data[(first + idx) % length];
-}
-
-//map
-template <typename T>
-deque<T>::map::map(): map_(nullptr), length(0), cap(0){}
-
-template <typename T>
-deque<T>::map::map(size_t initial_size = 4): cap(initial_size), length(0), map_(new *segment[initial_size]){}
-
-template <typename T>
-deque<T>::map::map(map& other): map_(other.map_), length(other.length), cap(other.cap){}
-
-template <typename T>
-deque<T>::map::~map() { delete[] map_; }
-
-template <typename T>
-deque<T>::map::map(const map& other) : cap(other.cap), length(other.length) {
-    map_ = new segment*[cap];
-    for (size_t i = 0; i < cap; ++i)
-        map_[i] = (other.map_[i] ? new segment(*other.map_[i]) : nullptr);
-}
-
-template <typename T>
-deque<T>::map::map(map&& other) {
-    map_ = std::move(other.map_);
-    cap = std::move(other.cap);
-    length = std::move(other.length);
-}
-
-template <typename T>
-size_t deque<T>::map::size() const { return length; }
-    
-template <typename T>
-size_t deque<T>::map::capacity() const { return cap; }
-
-template <typename T>
-deque<T>::segment*& deque<T>::map::operator[](size_t idx) { return map_[idx]; }
-
-template <typename T>
-deque<T>::segment* const& deque<T>::map::operator[](size_t idx) const { return map_[idx]; }
-
-template <typename T>
-void deque<T>::map::push_back(segment* seg) {
-    if (length == cap) resize(cap * 2);
-    map_[length++] = seg;
-}
-
-template <typename T>
-void deque<T>::map::push_front(segment* seg) {
-    if (length == cap) resize(cap * 2);
-    for (size_t i = length; i > 0; --i)
-        map_[i] = map_[i - 1];
-    map_[0] = seg;
-    ++length;
-}
-
-template <typename T>
-void deque<T>::map::pop_back() {
-    if (length == 0) throw empty_container();
-    --length;
-}
-
-template <typename T>
-void deque<T>::map::pop_front() {
-    if (length == 0) throw empty_container();
-    for (size_t i = 0; i < length - 1; ++i)
-        map_[i] = map_[i + 1];
-    --length;
-}
-
-template <typename T>
-void deque<T>::map::set(size_t idx, segment* seg) {
-    map_[idx] = seg;
-}
-
-template <typename T>
-void deque<T>::map::resize(size_t new_size) {
-    segment** new_map_ = new segment*[new_cap];
-    for (size_t i = 0; i < length; ++i)
-        new_map_[i] = map_[i];
-    for (size_t i = length; i < new_cap; ++i)
-        new_map_[i] = nullptr;
-    delete[] map_;
-    map_ = new_map_;
-    cap = new_cap;
-}
-//iterator
-template <typename T>
-deque<T>::iterator::operator*(){
-    return *current_elem;
-}
-
-template <typename T>
-deque<T>::iterator::operator++(){
-    if(current_elem==begin_of_curr_segment+current_segment.size()){
-        current_segment = (*map_map)
+template <template<typename> class Container, typename T>
+size_t deque<Container, T>::size() const {
+    if (map.size() == 0) return 0;
+    if (map.size() == 1) {
+        return last_elem_idx - first_elem_idx + 1;
     }
-    current_elem++;
-    return *this;
+    return (map.size() - 2) * segment_size +
+           (segment_size - first_elem_idx) +
+           (last_elem_idx + 1);
 }
 
-template <typename T>
-deque<T>::deque(): map_map(nullptr), segment_size(8), map_size(0), map_start_idx(0), first_elem(), last_elem(){}
 
-template <typename T>
-deque<T>::deque(size_t initial_size): map_begin(initial_size/2), map_size(initial.size), seg_size(sizeof(T)){}
 
-template <typename T>
-deque<T>::~deque(){
-    delete map_map;
-    delete map_size;
-    delete segment_size;
-    delete map_start_idx;
-    delete first elem;
-    delete last_elem;
-}
-
-template <typename T>
-deque<T>::deque()
-    : map_map(new map(4)), map_size(0), segment_size(64), map_start_idx(0),
-      first_elem(nullptr, nullptr, nullptr), last_elem(nullptr, nullptr, nullptr) {}
-
-template <typename T>
-deque<T>::deque(size_t initial_size): deque()
+template <template<typename> class Container, typename T>
+deque<Container, T>::deque(const deque& other):
+    first_elem_idx(other.first_elem_idx), last_elem_idx(other.last_elem_idx)
 {
-    if (initial_size == 0) return;
-
-    size_t seg_cap = segment_size;
-    size_t num_segments = (initial_size + seg_cap - 1) / seg_cap;
-    while (map_map->capacity() < num_segments)
-        map_map->resize(map_map->capacity() * 2);
-
-    for (size_t i = 0; i < num_segments; ++i) {
-        segment* seg = new segment(seg_cap);
-        map_map->push_back(seg);
-        ++map_size;
-    }
-    size_t remaining = initial_size;
-    for (size_t i = 0; i < num_segments && remaining > 0; ++i) {
-        segment* seg = (*map_map)[i];
-        size_t to_fill = std::min(remaining, seg_cap);
-        for (size_t j = 0; j < to_fill; ++j) {
-            seg->push_back(T());
+    for (segment* seg : other.map) {
+        if (seg) {
+            map.push_back(new segment(*seg));
+        } else {
+            map.push_back(nullptr);
         }
-        remaining -= to_fill;
-    }
-
-    map_start_idx = 0;
-}
-
-template <typename T>
-deque<T>::deque(const deque& other)
-    : map_map(new map(*other.map_map)), map_size(other.map_size),
-      segment_size(other.segment_size), map_start_idx(other.map_start_idx),
-      first_elem(other.first_elem), last_elem(other.last_elem) {}
-
-template <typename T>
-deque<T>::deque(deque&& other) noexcept{
-    map_map = std::move(other.map_map);
-    map_size = std::move(other.map_size);
-    segment_size = std::move(other.segment_size);
-    map_start_idx = std::move(other.map_start_idx);
-    first_elem = std::move(other.first_elem);
-    last_elem = std::move(other.last_elem);
-}
-
-template <typename T>
-deque<T>::~deque() {
-    if (map_map) {
-        for (size_t i = 0; i < map_map->size(); ++i) {
-            delete (*map_map)[i];
-        }
-        delete[] map_map;
     }
 }
 
+template <template<typename> class Container, typename T>
+deque<Container, T>::deque(deque&& other) noexcept{
+    map = std::move(other.map);
+    first_elem_idx = std::move(other.first_elem_idx);
+    last_elem_idx = std::move(other.last_elem_idx);
+}
+
+template <template<typename> class Container, typename T>
+deque<Container, T>::deque(): map(), first_elem_idx(0), last_elem_idx(0){}
 
 //кроме конструкторов и дестр
-template <typename T>
-deque<T>* deque<T>::append(const T& value) {
-    if (map_size == 0) {
-        segment* seg = new segment(segment_size);
-        seg->push_back(value);
-        map_map->push_back(seg);
-        ++map_size;
-        map_start_idx = ;
+template <template<typename> class Container, typename T>
+deque<Container, T>* deque<Container, T>::push_back(const T& value) {
+    if (map.size() == 0) {
+        segment* seg = new segment();
+        (*seg)[0] = value;
+        map.insert(map.begin(), seg);
+        first_elem_idx = last_elem_idx = 0;
         return this;
     }
-    size_t last_idx = map_start_idx + map_size - 1;
-    segment* last_seg = (*map_map)[map_size - 1];
-    if (!last_seg->full()) {
-        last_seg->push_back(value);
+
+    segment* last_seg = map.back();
+    if (last_elem_idx + 1 < segment_size) {
+        (*last_seg)[++last_elem_idx] = value;
     } else {
-        segment* new_seg = new segment(segment_size);
-        new_seg->push_back(value);
-        map_map->push_back(new_seg);
-        ++map_size;
+        segment* new_seg = new segment();
+        (*new_seg)[0] = value;
+        map.insert(map.end(), new_seg);
+        last_elem_idx = 0;
     }
     return this;
 }
 
-template <typename T>
-deque<T>* deque<T>::prepend() {
-    return prepend(T());
-}
-
-template <typename T>
-deque<T>* deque<T>::prepend(const T& value) {
-    if (map_size == 0) {
-        segment* seg = new segment(segment_size);
-        seg->push_back(value); 
-        map_map->push_back(seg);
-        ++map_size;
-        map_start_idx = 0;
+template <template<typename> class Container, typename T>
+deque<Container, T>* deque<Container, T>::push_front(const T& value) {
+    if (map.size() == 0) {
+        segment* seg = new segment();
+       (*seg)[0] = value;
+        map.insert(map.begin(), seg);
+        first_elem_idx = 0;
+        last_elem_idx = 0;
         return this;
     }
 
-    segment* first_seg = (*map_map)[0];
-    if (!first_seg->full()) {
-        first_seg->push_front(value);
+    segment* first_seg = map.front();
+    if (first_elem_idx > 0) {
+        (*first_seg)[--first_elem_idx] = value;
     } else {
-        segment* new_seg = new segment(segment_size);
-        new_seg->push_back(value);
-        map_map->push_front(new_seg);
-        ++map_size;
+        segment* new_seg = new segment();
+        (*new_seg)[segment_size-1] = value;
+        map.insert(map.begin(), new_seg);
+        first_elem_idx = segment_size-1;
     }
     return this;
 }
 
+template <template<typename> class Container, typename T>
+deque<Container, T>* deque<Container, T>::insert(const T& item, unsigned index) {
+    size_t sz = size();
+    if (index > sz) throw index_out_of_range();
+    if (index == 0) return push_front(item);
+    if (index == sz) return push_back(item);
 
-template <typename T>
-T& deque<T>::operator[](size_t index) {
-    if (index >= size())
+    push_back(T{});
+    for (size_t i = sz; i > index; --i) {
+        (*this)[i] = (*this)[i - 1];
+    }
+    (*this)[index] = item;
+    return this;
+}
+
+template <template<typename> class Container, typename T>
+T& deque<Container, T>::operator[](size_t index) {
+    if (index >= size()) throw index_out_of_range();
+    return (*map[(index+first_elem_idx)/segment_size])[(index -(segment_size-first_elem_idx))%segment_size]; 
+}
+
+template <template<typename> class Container, typename T>
+const T& deque<Container, T>::operator[](size_t index) const {
+    if (index >= size()) throw index_out_of_range();
+    return (*map[(index+first_elem_idx)/segment_size])[(index -(segment_size-first_elem_idx))%segment_size];
+}
+
+template <template<typename> class Container, typename T>
+T deque<Container, T>::get_first() const{
+    if (map.size() == 0) throw empty_container();
+    return (*map[0])[first_elem_idx];
+}
+
+template <template<typename> class Container, typename T>
+T deque<Container, T>::get_last() const{
+    if (map.size() == 0) throw empty_container();
+    return (*map[map.size()-1])[last_elem_idx];
+}
+
+template <template<typename> class Container, typename T>
+auto deque<Container, T>::begin() -> Container<T>::iterator{
+    return (*map[0]).begin();
+}
+
+template <template<typename> class Container, typename T>
+auto deque<Container, T>::end() -> Container<T>::iterator{
+    return (*map[map.size()-1]).end();
+}
+
+template <template<typename> class Container, typename T>
+auto deque<Container, T>::begin() const -> Container<T>::const_iterator{
+    return (*map[0]).begin();
+}
+
+template <template<typename> class Container, typename T>
+auto deque<Container, T>::end() const -> Container<T>::const_iterator{
+    return (*map[map.size()-1]).end();
+}
+
+template <template<typename> class Container, typename T>
+unsigned deque<Container, T>::find(const T& value) const {
+    size_t sz = size();
+    for (size_t i = 0; i < sz; i++) {
+        if ((*this)[i] == value)
+            return static_cast<unsigned>(i);
+    }
+    return static_cast<unsigned>(-1);
+}
+
+template <template<typename> class Container, typename T>
+void deque<Container, T>::sort() {
+    size_t sz = size();
+    if (sz <= 1) return;
+    Container<T> buffer;
+    buffer.reserve(sz);
+    for (size_t i = 0; i < sz; i++)
+        buffer.push_back((*this)[i]);
+    std::sort(buffer.begin(), buffer.end());
+    for (size_t i = 0; i < sz; i++)
+        (*this)[i] = buffer[i];
+}
+
+template <template<typename> class Container, typename T>
+template <typename Func>
+deque<Container, T>* deque<Container, T>::map(Func func) const {
+    deque<Container, T> result = new deque<Container, T>;
+    size_t sz = size();
+    for (size_t i = 0; i < sz; i++)
+        result.push_back(func((*this)[i]));
+    return result;
+}
+
+// 3. where – фильтрация по предикату
+template <template<typename> class Container, typename T>
+template <typename Func>
+deque<Container, T>* deque<Container, T>::where(Func func) const {
+    deque<Container, T>* result = new deque<Container, T>;
+    size_t sz = size();
+    for (size_t i = 0; i < sz; i++) {
+        const T& val = (*this)[i];
+        if (func(val))
+            result.push_back(val);
+    }
+    return result;
+}
+
+// 4. reduce – свёртка (левый fold)
+template <template<typename> class Container, typename T>
+template <typename Acc, typename Func>
+Acc deque<Container, T>::reduce(Acc init, Func func) const {
+    Acc result = init;
+    size_t sz = size();
+    for (size_t i = 0; i < sz; i++)
+        result = func(result, (*this)[i]);
+    return result;
+}
+
+template <template<typename> class Container, typename T>
+deque<Container, T>* deque<Container, T>::concat(const deque<Container, T>& other) const {
+    deque<Container, T>* result = new deque<Container, T>;
+    size_t sz1 = size();
+    for (size_t i = 0; i < sz1; i++)
+        result.push_back((*this)[i]);
+    size_t sz2 = other.size();
+    for (size_t i = 0; i < sz2; i++)
+        result.push_back(other[i]);
+    return result;
+}
+
+template <template<typename> class Container, typename T>
+deque<Container, T>* deque<Container, T>::subdeque(unsigned start, unsigned end) const {
+    size_t sz = size();
+    if (start > end || start > sz || end > sz+1)
         throw index_out_of_range();
-    size_t seg_idx = index / segment_size;
-    size_t offset = index % segment_size;
-    return (*((*map_map)[seg_idx]))[offset];
+    deque<Container, T>* result = new deque<Container, T>;
+    for (unsigned i = start; i < end; i++)
+        result->push_back((*this)[i]);
+    return result;
 }
 
-template <typename T>
-const T& deque<T>::operator[](size_t index) const {
-    if (index >= size())
-        throw index_out_of_range();
-    size_t seg_idx = index / segment_size;
-    size_t offset = index % segment_size;
-    return (*((*map_map)[seg_idx]))[offset];
+template <template<typename> class Container, typename T>
+size_t deque<Container, T>::find_subsequence(const deque<Container, T>& pattern) const {
+    size_t n = size();
+    size_t m = pattern.size();
+    if (m == 0) return 0;
+    if (m > n) return -1;
+    for (size_t i = 0; i <= n - m; i++) {
+        bool found = true;
+        for (size_t j = 0; j < m; j++) {
+            if ((*this)[i + j] != pattern[j]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) return i;
+    }
+    throw not_found();
 }
 
-template <typename T>
-T deque<T>::get_first() const {
-    if (map_size == 0) throw empty_container();
-    segment* first = (*map_map)[0];
-    return first->front();
-}
-
-template <typename T>
-T deque<T>::get_last() const {
-    if (map_size == 0) throw emty_container;
-    segment* last = (*map_map)[map_size - 1];
-    return last->back();
-}
-
-template <typename T>
-size_t deque<T>::size() const {
-    if (map_size == 0) return 0;
-    size_t total = (map_size - 1) * segment_size;
-    segment* last = (*map_map)[map_size - 1];
-    total += last->size();
-    return total;
-}
-
-template <typename T>
-typename deque<T>::iterator deque<T>::begin() {
-    if (map_size == 0) return end();
-    segment* first_seg = (*map_map)[0];
-    T* ptr = &(first_seg->front());
-    return iterator(ptr, nullptr, nullptr);
-}
-
-template <typename T>
-typename deque<T>::iterator deque<T>::end() {
-    return iterator(nullptr, nullptr, nullptr);
+template <template<typename> class Container, typename T>
+template<typename Func>
+deque<Container, T>* deque<Container, T>::merge(const deque<Container, T>* a,
+                                               const deque<Container, T>* b, Func func) {
+    deque<Container, T>* result = new deque<Container, T>;
+    if (result == nulptr) throw null_ptr();
+    size_t i = 0, j = 0;
+    size_t na = a->size(), nb = b->size();
+    while (i < na && j < nb) {
+        if func((*a)[i], (*b)[j])
+            result->push_back((*a)[i++]);
+        else
+            result->push_back((*b)[j++]);
+    }
+    while (i < na) result->push_back((*a)[i++]);
+    while (j < nb) result->push_back((*b)[j++]);
+    return result;
 }

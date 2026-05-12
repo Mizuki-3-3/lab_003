@@ -56,7 +56,7 @@ unsigned immutable_array_seq<T>::size() const {
 }
 
 template<typename T>
-sequence<T>* immutable_array_seq<T>::append(const T& item) {
+sequence<T>* immutable_array_seq<T>::push_back(const T& item) {
     immutable_array_seq<T>* new_seq = new immutable_array_seq<T>(arr->size() + 1);
     if (!new_seq) throw null_ptr();
     for (unsigned i = 0; i < arr->size(); i++) {
@@ -67,7 +67,7 @@ sequence<T>* immutable_array_seq<T>::append(const T& item) {
 }
 
 template<typename T>
-sequence<T>* immutable_array_seq<T>::prepend(const T& item) {
+sequence<T>* immutable_array_seq<T>::push_front(const T& item) {
     dyn_arr<T>* new_arr = new dyn_arr<T>(arr->size() + 1);
     if (!new_arr) throw null_ptr();
     (*new_arr)[0] = item;
@@ -82,8 +82,8 @@ sequence<T>* immutable_array_seq<T>::prepend(const T& item) {
 template<typename T>
 sequence<T>* immutable_array_seq<T>::insert(const T& item, unsigned index) {
     if (index > arr->size()) throw index_out_of_range();
-    if (index == 0) return prepend(item);
-    if (index == arr->size()) return append(item);
+    if (index == 0) return push_front(item);
+    if (index == arr->size()) return push_back(item);
     unsigned ns = arr->size() + 1;
     dyn_arr<T>* new_arr = new dyn_arr<T>(ns);
     if (new_arr == nullptr) throw null_ptr();

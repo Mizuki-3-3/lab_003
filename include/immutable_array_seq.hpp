@@ -22,8 +22,8 @@ public:
     T get_last() const override;
     unsigned size() const override;
 
-    sequence<T>* append(const T& item) override;
-    sequence<T>* prepend(const T& item) override;
+    sequence<T>* push_back(const T& item) override;
+    sequence<T>* push_front(const T& item) override;
     sequence<T>* insert(const T& item, unsigned index) override;
     sequence<T>* concat(sequence<T>* other) override;
     sequence<T>* get_subsequence(unsigned start, unsigned end) const override;

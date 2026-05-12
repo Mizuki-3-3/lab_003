@@ -36,3 +36,8 @@ class empty_container: public exception_{
 public:
     empty_container(): exception_("container is empty"){}
 };
+
+class not_found: public exception_{
+public:
+    not_found(): exception_("element not found"){}
+};
