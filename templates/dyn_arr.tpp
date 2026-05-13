@@ -1,172 +1,172 @@
 #include "dyn_arr.hpp"
 #include "errors.hpp"
 
-//contiguous_iterator
+//iterator
 template<typename T>
-dyn_arr<T>::contiguous_iterator::contiguous_iterator(T* ptr): current(ptr){}
+dyn_arr<T>::iterator::iterator(T* ptr): current(ptr){}
 
 template<typename T>
-T& dyn_arr<T>::contiguous_iterator::operator*(){return *current;}
+T& dyn_arr<T>::iterator::operator*(){return *current;}
 
 template<typename T>
-T* dyn_arr<T>::contiguous_iterator::operator->(){ return current;}
+T* dyn_arr<T>::iterator::operator->(){ return current;}
 
 template<typename T>
-dyn_arr<T>::contiguous_iterator& dyn_arr<T>::contiguous_iterator::operator++(){
+auto dyn_arr<T>::iterator::operator++() -> dyn_arr<T>::iterator&{
     ++current;
     return *this;
 }
         
 template<typename T>
-dyn_arr<T>::contiguous_iterator dyn_arr<T>::contiguous_iterator::operator++(int){
-    contiguous_iterator tmp = *this;
+auto dyn_arr<T>::iterator::operator++(int) -> dyn_arr<T>::iterator{
+   iterator tmp = *this;
     ++current;
     return tmp;
 }
 template<typename T>
-dyn_arr<T>::contiguous_iterator& dyn_arr<T>::contiguous_iterator::operator--(){
+auto dyn_arr<T>::iterator::operator--() -> dyn_arr<T>::iterator&{
     --current;
     return *this;
 }
         
 template<typename T>
-dyn_arr<T>::contiguous_iterator dyn_arr<T>::contiguous_iterator::operator--(int){
-    contiguous_iterator tmp = *this;
+auto dyn_arr<T>::iterator::operator--(int) -> dyn_arr<T>::iterator{
+   iterator tmp = *this;
     --current;
     return tmp;
 }
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator!=(contiguous_iterator& other) const{
+bool dyn_arr<T>::iterator::operator!=(iterator& other) const{
     return current!=other.current;
 }
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator==(contiguous_iterator& other) const{
+bool dyn_arr<T>::iterator::operator==(iterator& other) const{
     return current==other.current;
 }
 
 template<typename T>
-dyn_arr<T>::contiguous_iterator& dyn_arr<T>::contiguous_iterator::operator+=(std::ptrdiff_t n){
+auto dyn_arr<T>::iterator::operator+=(std::ptrdiff_t n) -> dyn_arr<T>::iterator&{
     current += n;
     return *this;
 }
 
 template<typename T>
-dyn_arr<T>::contiguous_iterator dyn_arr<T>::contiguous_iterator::operator+(std::ptrdiff_t n){
-    return contiguous_iterator(current + n);
+auto dyn_arr<T>::iterator::operator+(std::ptrdiff_t n) -> dyn_arr<T>::iterator{
+    returniterator(current + n);
 }
 
 template<typename T>
-dyn_arr<T>::contiguous_iterator& dyn_arr<T>::contiguous_iterator::operator-=(std::ptrdiff_t n){
+auto dyn_arr<T>::iterator::operator-=(std::ptrdiff_t n) -> dyn_arr<T>::iterator&{
     current -= n;
     return *this;
 }
 template<typename T>
-dyn_arr<T>::contiguous_iterator dyn_arr<T>::contiguous_iterator::operator-(std::ptrdiff_t n){
-    return contiguous_iterator(current - n);
+auto dyn_arr<T>::iterator::operator-(std::ptrdiff_t n) -> dyn_arr<T>::iterator{
+    returniterator(current - n);
 }
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator==(const contiguous_iterator& other) const{return other.current == current;}
+bool dyn_arr<T>::iterator::operator==(const iterator& other) const{return other.current == current;}
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator!=(const contiguous_iterator& other) const{return !(other==*this);}
+bool dyn_arr<T>::iterator::operator!=(const iterator& other) const{return !(other==*this);}
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator< (const contiguous_iterator& other) const{return current < other.current;}
+bool dyn_arr<T>::iterator::operator< (const iterator& other) const{return current < other.current;}
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator> (const contiguous_iterator& other) const{return current > other.current;}
+bool dyn_arr<T>::iterator::operator> (const iterator& other) const{return current > other.current;}
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator<=(const contiguous_iterator& other) const{return !(*this > other);}
+bool dyn_arr<T>::iterator::operator<=(const iterator& other) const{return !(*this > other);}
 
 template<typename T>
-bool dyn_arr<T>::contiguous_iterator::operator>=(const contiguous_iterator& other) const{return !(*this < other);}
+bool dyn_arr<T>::iterator::operator>=(const iterator& other) const{return !(*this < other);}
 
-//const_contiguous_iterator
-
-template<typename T>
-dyn_arr<T>::const_contiguous_iterator::const_contiguous_iterator(T* ptr): current(ptr){}
+//const_iterator
 
 template<typename T>
-T& dyn_arr<T>::const_contiguous_iterator::operator*(){return *current;}
+dyn_arr<T>::const_iterator::const_iterator(T* ptr): current(ptr){}
 
 template<typename T>
-T* dyn_arr<T>::const_contiguous_iterator::operator->(){ return current;}
+T& dyn_arr<T>::const_iterator::operator*(){return *current;}
 
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator& dyn_arr<T>::const_contiguous_iterator::operator++(){
+T* dyn_arr<T>::const_iterator::operator->(){ return current;}
+
+template<typename T>
+auto dyn_arr<T>::const_iterator::operator++() -> dyn_arr<T>::const_iterator&{
     ++current;
     return *this;
 }
         
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::const_contiguous_iterator::operator++(int){
-    const_contiguous_iterator tmp = *this;
+auto dyn_arr<T>::const_iterator::operator++(int) -> dyn_arr<T>::const_iterator{
+    const_iterator tmp = *this;
     ++current;
     return tmp;
 }
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator& dyn_arr<T>::const_contiguous_iterator::operator--(){
+auto dyn_arr<T>::const_iterator::operator--() -> dyn_arr<T>::const_iterator&{
     --current;
     return *this;
 }
         
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::const_contiguous_iterator::operator--(int){
-    const_contiguous_iterator tmp = *this;
+auto dyn_arr<T>::const_iterator::operator--(int) -> dyn_arr<T>::const_iterator{
+    const_iterator tmp = *this;
     --current;
     return tmp;
 }
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator!=(const_contiguous_iterator& other) const{
+bool dyn_arr<T>::const_iterator::operator!=(const_iterator& other) const{
     return current!=other.current;
 }
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator==(const_contiguous_iterator& other) const{
+bool dyn_arr<T>::const_iterator::operator==(const_iterator& other) const{
     return current==other.current;
 }
 
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator& dyn_arr<T>::const_contiguous_iterator::operator+=(std::ptrdiff_t n){
+auto dyn_arr<T>::const_iterator::operator+=(std::ptrdiff_t n) -> dyn_arr<T>::const_iterator&{
     current += n;
     return *this;
 }
 
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::const_contiguous_iterator::operator+(std::ptrdiff_t n){
-    return contiguous_iterator(current+n);
+auto dyn_arr<T>::const_iterator::operator+(std::ptrdiff_t n) -> dyn_arr<T>::const_iterator{
+    returniterator(current+n);
 }
 
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator& dyn_arr<T>::const_contiguous_iterator::operator-=(std::ptrdiff_t n){
+auto dyn_arr<T>::const_iterator::operator-=(std::ptrdiff_t n) -> dyn_arr<T>::const_iterator&{
     current -= n;
     return *this;
 }
 template<typename T>
-dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::const_contiguous_iterator::operator-(std::ptrdiff_t n){
-    return contiguous_iterator(current-n);
+auto dyn_arr<T>::const_iterator::operator-(std::ptrdiff_t n)-> dyn_arr<T>::const_iterator{
+    returniterator(current-n);
 }
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator==(const const_contiguous_iterator& other) const{return other.current == current;}
+bool dyn_arr<T>::const_iterator::operator==(const const_iterator& other) const{return other.current == current;}
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator!=(const const_contiguous_iterator& other) const{return !(other==*this);}
+bool dyn_arr<T>::const_iterator::operator!=(const const_iterator& other) const{return !(other==*this);}
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator< (const const_contiguous_iterator& other) const{return current < other.current;}
+bool dyn_arr<T>::const_iterator::operator< (const const_iterator& other) const{return current < other.current;}
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator> (const const_contiguous_iterator& other) const{return current > other.current;}
+bool dyn_arr<T>::const_iterator::operator> (const const_iterator& other) const{return current > other.current;}
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator<=(const const_contiguous_iterator& other) const{return !(*this > other);}
+bool dyn_arr<T>::const_iterator::operator<=(const const_iterator& other) const{return !(*this > other);}
 
 template<typename T>
-bool dyn_arr<T>::const_contiguous_iterator::operator>=(const const_contiguous_iterator& other) const{return !(*this < other);}
+bool dyn_arr<T>::const_iterator::operator>=(const const_iterator& other) const{return !(*this < other);}
 
 //dyn_arr
 template<typename T>
@@ -208,16 +208,16 @@ const T& dyn_arr<T>::operator[](unsigned index) const {
 }
 
 template<typename T>
-typename dyn_arr<T>::contiguous_iterator dyn_arr<T>::begin() { return contiguous_iterator(data); }
+typename dyn_arr<T>::iterator dyn_arr<T>::begin() { return iterator(data); }
 
 template<typename T>
-typename dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::begin() const { return const_contiguous_iterator(data); }
+typename dyn_arr<T>::const_iterator dyn_arr<T>::begin() const { return const_iterator(data); }
 
 template<typename T>
-typename dyn_arr<T>::contiguous_iterator dyn_arr<T>::end() { return contiguous_iterator(data + length); }
+typename dyn_arr<T>::iterator dyn_arr<T>::end() { return iterator(data + length); }
 
 template<typename T>
-typename dyn_arr<T>::const_contiguous_iterator dyn_arr<T>::end() const { return const_contiguous_iterator(data + length); }
+typename dyn_arr<T>::const_iterator dyn_arr<T>::end() const { return const_iterator(data + length); }
 
 
 template<typename T>

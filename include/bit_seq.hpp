@@ -5,7 +5,7 @@
 #include "dyn_arr.hpp"
 #include <memory>
 
-template <Mutability M, std::integral T = unsigned int>
+template <std::integral T = unsigned int>
 class bit_seq : public sequence<bit<T>> {
 private:
     std::unique_ptr<dyn_arr<bit<T>>> bit_s;
@@ -26,8 +26,8 @@ public:
 
     sequence<bit<T>>* get_subsequence(unsigned start, unsigned end) const override;
     sequence<bit<T>>* concat(sequence<bit<T>>* other) override;
-    sequence<bit<T>>* append(const bit<T>& val) override;
-    sequence<bit<T>>* prepend(const bit<T>& val) override;
+    sequence<bit<T>>* push_back(const bit<T>& val) override;
+    sequence<bit<T>>* push_front(const bit<T>& val) override;
     sequence<bit<T>>* insert(const bit<T>& val, unsigned index) override;
     unsigned find(const bit<T>& value) const override;
 

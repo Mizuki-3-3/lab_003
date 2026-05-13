@@ -12,39 +12,35 @@ private:
     node* head;
     node* tail;
     unsigned length;
-
-    class forward_iterator {//*, ->, ++, ++(int), ==, !=, 
+public:
+    class iterator {//*, ->, ++, ++(int), ==, !=, 
         node* curr;
     public:
-        explicit forward_iterator(node* ptr) noexcept: curr(ptr) {}
+        explicit iterator(node* ptr) noexcept: curr(ptr) {}
         T& operator*() const; //возвращаем неконстанты
         T* operator->() const;
-        forward_iterator& operator++();
-        forward_iterator operator++(int);
-        bool operator!=(const forward_iterator& other) const;
-        bool operator==(const forward_iterator& other) const;
+        iterator& operator++();
+        iterator operator++(int);
+        bool operator!=(const iterator& other) const;
+        bool operator==(const iterator& other) const;
     };
 
-    class const_forward_iterator {//*, ->, ++, ++(int), ==, !=, 
+    class const_iterator {//*, ->, ++, ++(int), ==, !=, 
         node* curr;
     public:
-        explicit const_forward_iterator(node* ptr) noexcept: curr(ptr) {}
+        explicit const_iterator(node* ptr) noexcept: curr(ptr) {}
         const T& operator*() const; //возвращаем константы
         const T* operator->() const;
-        const_forward_iterator& operator++();
-        const_forward_iterator operator++(int);
-        bool operator!=(const const_forward_iterator& other) const;
-        bool operator==(const const_forward_iterator& other) const;
+        const_iterator& operator++();
+        const_iterator operator++(int);
+        bool operator!=(const const_iterator& other) const;
+        bool operator==(const const_iterator& other) const;
     };
-public:
-    
-
-    
 
     forward_list();
-    explicit forward_list(unsigned initial_size) noexcept;
-    forward_list(const T* data, unsigned initial_size) noexcept;
-    forward_list(const forward_list& other) noexcept;
+    explicit forward_list(unsigned initial_size);
+    forward_list(const T* data, unsigned initial_size);
+    forward_list(const forward_list& other);
     ~forward_list();
 
     T& operator[](unsigned index);
@@ -56,10 +52,10 @@ public:
     T get_first() const;
     T get_last() const;
 
-    forward_iterator begin();
-    forward_iterator end();
-    const_forward_iterator begin() const;
-    const_forward_iterator end() const;
+    iterator begin();
+    iterator end();
+    const_iterator begin() const;
+    const_iterator end() const;
 
     forward_list<T> slice(unsigned start, unsigned end);
 

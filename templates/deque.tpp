@@ -33,7 +33,7 @@ Container<T>* deque<Container, T>::segment::operator->() {
 //deque
 template <template<typename> class Container, typename T>
 deque<Container, T>::~deque(){
-    for (segment* seg : map)
+    for (segment* seg : mapa)
         delete seg;
 }
 
@@ -45,11 +45,11 @@ deque<Container, T>::deque(size_t initial_size) : deque() {
 
 template <template<typename> class Container, typename T>
 size_t deque<Container, T>::size() const {
-    if (map.size() == 0) return 0;
-    if (map.size() == 1) {
+    if (mapa.size() == 0) return 0;
+    if (mapa.size() == 1) {
         return last_elem_idx - first_elem_idx + 1;
     }
-    return (map.size() - 2) * segment_size +
+    return (mapa.size() - 2) * segment_size +
            (segment_size - first_elem_idx) +
            (last_elem_idx + 1);
 }
@@ -60,43 +60,62 @@ template <template<typename> class Container, typename T>
 deque<Container, T>::deque(const deque& other):
     first_elem_idx(other.first_elem_idx), last_elem_idx(other.last_elem_idx)
 {
-    for (segment* seg : other.map) {
+    for (segment* seg : other.mapa) {
         if (seg) {
-            map.push_back(new segment(*seg));
+            mapa.push_back(new segment(*seg));
         } else {
-            map.push_back(nullptr);
+            mapa.push_back(nullptr);
         }
     }
 }
 
 template <template<typename> class Container, typename T>
 deque<Container, T>::deque(deque&& other) noexcept{
-    map = std::move(other.map);
+    mapa = std::move(other.mapa);
     first_elem_idx = std::move(other.first_elem_idx);
     last_elem_idx = std::move(other.last_elem_idx);
 }
 
 template <template<typename> class Container, typename T>
-deque<Container, T>::deque(): map(), first_elem_idx(0), last_elem_idx(0){}
+deque<Container, T>::deque(): mapa(), first_elem_idx(0), last_elem_idx(0){}
+
+template <template<typename> class Container, typename T>
+deque<Container, T>& deque<Container, T>::operator=(const deque<Container, T>& other) {
+    if (this != &other) {
+        first_elem_idx = other.first_elem_idx;
+        last_elem_idx = other.last_elem_idx;
+        mapa(other.mapa.size());
+        for (size_t i = 0; i < other.mapa.size(); i++){
+            segment* seg = new segment();
+            mapa[i] = seg;
+            for (size_t j = 0; j < segment_size; j++){
+                (*this)[i*segment_size+j] = other[i*segment_size+j];
+            }
+        }
+        
+    }
+    return *this;
+}
+
 
 //кроме конструкторов и дестр
 template <template<typename> class Container, typename T>
 deque<Container, T>* deque<Container, T>::push_back(const T& value) {
-    if (map.size() == 0) {
+    if (mapa.size() == 0) {
         segment* seg = new segment();
         (*seg)[0] = value;
-        map.insert(map.begin(), seg);
+        mapa.insert(seg, 0);
         first_elem_idx = last_elem_idx = 0;
         return this;
     }
 
-    segment* last_seg = map.back();
+    segment* last_seg = mapa.back();
     if (last_elem_idx + 1 < segment_size) {
         (*last_seg)[++last_elem_idx] = value;
     } else {
         segment* new_seg = new segment();
         (*new_seg)[0] = value;
-        map.insert(map.end(), new_seg);
+        mapa.insert(new_seg, mapa.size());
         last_elem_idx = 0;
     }
     return this;
@@ -104,22 +123,22 @@ deque<Container, T>* deque<Container, T>::push_back(const T& value) {
 
 template <template<typename> class Container, typename T>
 deque<Container, T>* deque<Container, T>::push_front(const T& value) {
-    if (map.size() == 0) {
+    if (mapa.size() == 0) {
         segment* seg = new segment();
        (*seg)[0] = value;
-        map.insert(map.begin(), seg);
+        mapa.insert(seg, 0);
         first_elem_idx = 0;
         last_elem_idx = 0;
         return this;
     }
 
-    segment* first_seg = map.front();
+    segment* first_seg = mapa.front();
     if (first_elem_idx > 0) {
         (*first_seg)[--first_elem_idx] = value;
     } else {
         segment* new_seg = new segment();
         (*new_seg)[segment_size-1] = value;
-        map.insert(map.begin(), new_seg);
+        mapa.insert(new_seg, 0);
         first_elem_idx = segment_size-1;
     }
     return this;
@@ -143,45 +162,51 @@ deque<Container, T>* deque<Container, T>::insert(const T& item, unsigned index) 
 template <template<typename> class Container, typename T>
 T& deque<Container, T>::operator[](size_t index) {
     if (index >= size()) throw index_out_of_range();
-    return (*map[(index+first_elem_idx)/segment_size])[(index -(segment_size-first_elem_idx))%segment_size]; 
+    size_t physical = first_elem_idx + index;
+    size_t seg_idx = physical / segment_size;
+    size_t offset = physical % segment_size;
+    return (*mapa[seg_idx])[offset];
 }
 
 template <template<typename> class Container, typename T>
 const T& deque<Container, T>::operator[](size_t index) const {
     if (index >= size()) throw index_out_of_range();
-    return (*map[(index+first_elem_idx)/segment_size])[(index -(segment_size-first_elem_idx))%segment_size];
+    size_t physical = first_elem_idx + index;
+    size_t seg_idx = physical / segment_size;
+    size_t offset = physical % segment_size;
+    return (*mapa[seg_idx])[offset];
 }
 
 template <template<typename> class Container, typename T>
-T deque<Container, T>::get_first() const{
-    if (map.size() == 0) throw empty_container();
-    return (*map[0])[first_elem_idx];
+T deque<Container, T>::front() const{
+    if (mapa.size() == 0) throw empty_container();
+    return (*mapa[0])[first_elem_idx];
 }
 
 template <template<typename> class Container, typename T>
-T deque<Container, T>::get_last() const{
-    if (map.size() == 0) throw empty_container();
-    return (*map[map.size()-1])[last_elem_idx];
+T deque<Container, T>::back() const{
+    if (mapa.size() == 0) throw empty_container();
+    return (*mapa[mapa.size()-1])[last_elem_idx];
 }
 
 template <template<typename> class Container, typename T>
-auto deque<Container, T>::begin() -> Container<T>::iterator{
-    return (*map[0]).begin();
+auto deque<Container, T>::begin() -> typename Container<T>::iterator{
+    return (*mapa[0]).begin();
 }
 
 template <template<typename> class Container, typename T>
-auto deque<Container, T>::end() -> Container<T>::iterator{
-    return (*map[map.size()-1]).end();
+auto deque<Container, T>::end() -> typename Container<T>::iterator{
+    return (*mapa[mapa.size()-1]).end();
 }
 
 template <template<typename> class Container, typename T>
-auto deque<Container, T>::begin() const -> Container<T>::const_iterator{
-    return (*map[0]).begin();
+auto deque<Container, T>::begin() const -> typename Container<T>::const_iterator{
+    return (*mapa[0]).begin();
 }
 
 template <template<typename> class Container, typename T>
-auto deque<Container, T>::end() const -> Container<T>::const_iterator{
-    return (*map[map.size()-1]).end();
+auto deque<Container, T>::end() const -> typename Container<T>::const_iterator{
+    return (*mapa[mapa.size()-1]).end();
 }
 
 template <template<typename> class Container, typename T>
@@ -191,33 +216,32 @@ unsigned deque<Container, T>::find(const T& value) const {
         if ((*this)[i] == value)
             return static_cast<unsigned>(i);
     }
-    return static_cast<unsigned>(-1);
+    throw not_found();
 }
 
 template <template<typename> class Container, typename T>
 void deque<Container, T>::sort() {
-    size_t sz = size();
-    if (sz <= 1) return;
-    Container<T> buffer;
-    buffer.reserve(sz);
-    for (size_t i = 0; i < sz; i++)
-        buffer.push_back((*this)[i]);
-    std::sort(buffer.begin(), buffer.end());
-    for (size_t i = 0; i < sz; i++)
-        (*this)[i] = buffer[i];
+    for (size_t i = 0; i<size()-1; i++){
+        for (size_t j = 0; j<size()-i-1; j++){
+            if ((*this)[j]>(*this)[j+1]){
+                T tmp = (*this)[j];
+                (*this)[j] = (*this)[j+1];
+                (*this)[j+1] = tmp;
+            }
+        }
+    }
 }
 
 template <template<typename> class Container, typename T>
 template <typename Func>
 deque<Container, T>* deque<Container, T>::map(Func func) const {
-    deque<Container, T> result = new deque<Container, T>;
+    deque<Container, T>* result = new deque<Container, T>;
     size_t sz = size();
     for (size_t i = 0; i < sz; i++)
-        result.push_back(func((*this)[i]));
+        result->push_back(func((*this)[i]));
     return result;
 }
 
-// 3. where – фильтрация по предикату
 template <template<typename> class Container, typename T>
 template <typename Func>
 deque<Container, T>* deque<Container, T>::where(Func func) const {
@@ -226,12 +250,11 @@ deque<Container, T>* deque<Container, T>::where(Func func) const {
     for (size_t i = 0; i < sz; i++) {
         const T& val = (*this)[i];
         if (func(val))
-            result.push_back(val);
+            result->push_back(val);
     }
     return result;
 }
 
-// 4. reduce – свёртка (левый fold)
 template <template<typename> class Container, typename T>
 template <typename Acc, typename Func>
 Acc deque<Container, T>::reduce(Acc init, Func func) const {
@@ -247,10 +270,10 @@ deque<Container, T>* deque<Container, T>::concat(const deque<Container, T>& othe
     deque<Container, T>* result = new deque<Container, T>;
     size_t sz1 = size();
     for (size_t i = 0; i < sz1; i++)
-        result.push_back((*this)[i]);
+        result->push_back((*this)[i]);
     size_t sz2 = other.size();
     for (size_t i = 0; i < sz2; i++)
-        result.push_back(other[i]);
+        result->push_back(other[i]);
     return result;
 }
 
@@ -286,19 +309,19 @@ size_t deque<Container, T>::find_subsequence(const deque<Container, T>& pattern)
 
 template <template<typename> class Container, typename T>
 template<typename Func>
-deque<Container, T>* deque<Container, T>::merge(const deque<Container, T>* a,
-                                               const deque<Container, T>* b, Func func) {
+deque<Container, T>* deque<Container, T>::merge(const deque<Container, T>* b, Func func) {
     deque<Container, T>* result = new deque<Container, T>;
-    if (result == nulptr) throw null_ptr();
+    if (result == nullptr) throw null_ptr();
     size_t i = 0, j = 0;
-    size_t na = a->size(), nb = b->size();
+    size_t na = size(), nb = b->size();
     while (i < na && j < nb) {
-        if func((*a)[i], (*b)[j])
-            result->push_back((*a)[i++]);
-        else
+        if (func((*this)[i], (*b)[j])){
+            result->push_back((*this)[i++]);
+        }else{
             result->push_back((*b)[j++]);
+        }
     }
-    while (i < na) result->push_back((*a)[i++]);
+    while (i < na) result->push_back((*this)[i++]);
     while (j < nb) result->push_back((*b)[j++]);
     return result;
 }

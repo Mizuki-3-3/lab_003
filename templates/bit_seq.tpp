@@ -76,7 +76,7 @@ sequence<bit<T>>* bit_seq<M,T>::append(const bit<T>& val) {
 }
 
 template<Mutability M, std::integral T>
-sequence<bit<T>>* bit_seq<M,T>::prepend(const bit<T>& item) {
+sequence<bit<T>>* bit_seq<M,T>::push_front(const bit<T>& item) {
     if constexpr (M == Mutability::Mutable) {
         bit_s->resize(bit_s->size() + 1);
         for (unsigned i = bit_s->size() - 1; i > 0; --i)
@@ -96,7 +96,7 @@ sequence<bit<T>>* bit_seq<M,T>::prepend(const bit<T>& item) {
 template<Mutability M, std::integral T>
 sequence<bit<T>>* bit_seq<M,T>::insert(const bit<T>& item, unsigned index) {
     if (index > bit_s->size()) throw index_out_of_range();
-    if (index == 0) return prepend(item);
+    if (index == 0) return push_front(item);
     if (index == bit_s->size()) return append(item);
 
     if constexpr (M == Mutability::Mutable) {

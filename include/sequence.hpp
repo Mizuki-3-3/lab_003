@@ -5,8 +5,8 @@ class sequence {
 public:
     virtual ~sequence() = default;
 
-    virtual T get_first() const = 0;
-    virtual T get_last() const = 0;
+    virtual T front() const = 0;
+    virtual T back() const = 0;
     virtual unsigned size() const = 0;
 
     virtual sequence<T>* push_back(const T& item) = 0;

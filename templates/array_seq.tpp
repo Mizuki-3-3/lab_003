@@ -39,13 +39,13 @@ array_seq<T>& array_seq<T>::operator=(const array_seq& other) {
 }
 
 template<typename T>
-T array_seq<T>::get_first() const {
+T array_seq<T>::front() const {
     if (size() == 0) throw empty_container();
     return (*arr)[0];
 }
 
 template<typename T>
-T array_seq<T>::get_last() const {
+T array_seq<T>::back() const {
     if (size() == 0) throw empty_container();
     return (*arr)[size() - 1];
 }

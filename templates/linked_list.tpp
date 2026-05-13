@@ -7,63 +7,63 @@ forward_list<T>::node::node(const T& value) : value(value), next(nullptr) {}
 
 //forward_operator
 template <typename T>
-T& forward_list<T>::forward_iterator::operator*() const { return curr->value;}
+T& forward_list<T>::iterator::operator*() const { return curr->value;}
 
 template <typename T>
-T* forward_list<T>::forward_iterator::operator->() const { return &curr->value;}
+T* forward_list<T>::iterator::operator->() const { return &curr->value;}
 
 
 template <typename T>
-auto forward_list<T>::forward_iterator::operator++() -> forward_list<T>::forward_iterator& {
+auto forward_list<T>::iterator::operator++() -> forward_list<T>::iterator& {
     if (curr) curr = curr->next;
     return *this;
 }
 
 template <typename T>
-auto forward_list<T>::forward_iterator::operator++(int) -> forward_list<T>::forward_iterator {
-    forward_iterator tmp = *this;
+auto forward_list<T>::iterator::operator++(int) -> forward_list<T>::iterator {
+    iterator tmp = *this;
     if (curr) curr = curr->next;
     return tmp;
 }
 
 template <typename T>
-bool forward_list<T>::forward_iterator::operator!=(const forward_iterator& other) const {
+bool forward_list<T>::iterator::operator!=(const iterator& other) const {
     return curr != other.curr;
 }
 
 template <typename T>
-bool forward_list<T>::forward_iterator::operator==(const forward_iterator& other) const {
+bool forward_list<T>::iterator::operator==(const iterator& other) const {
     return curr == other.curr;
 }
 
 //const_forward_operator
 template <typename T>
-const T& forward_list<T>::const_forward_iterator::operator*() const { return curr->value;}
+const T& forward_list<T>::const_iterator::operator*() const { return curr->value;}
 
 template <typename T>
-const T* forward_list<T>::const_forward_iterator::operator->() const { return &(curr->value);}
+const T* forward_list<T>::const_iterator::operator->() const { return &(curr->value);}
 
 
 template <typename T>
-auto forward_list<T>::const_forward_iterator::operator++() -> forward_list<T>::const_forward_iterator& {
+auto forward_list<T>::const_iterator::operator++() -> forward_list<T>::const_iterator& {
     if (curr) curr = curr->next;
     return *this;
 }
 
 template <typename T>
-auto forward_list<T>::const_forward_iterator::operator++(int) -> forward_list<T>::const_forward_iterator {
-    const_forward_iterator tmp = *this;
+auto forward_list<T>::const_iterator::operator++(int) -> forward_list<T>::const_iterator {
+    const_iterator tmp = *this;
     if (curr) curr = curr->next;
     return tmp; 
 }
 
 template <typename T>
-bool forward_list<T>::const_forward_iterator::operator!=(const const_forward_iterator& other) const {
+bool forward_list<T>::const_iterator::operator!=(const const_iterator& other) const {
     return curr != other.curr;
 }
 
 template <typename T>
-bool forward_list<T>::const_forward_iterator::operator==(const const_forward_iterator& other) const {
+bool forward_list<T>::const_iterator::operator==(const const_iterator& other) const {
     return curr == other.curr;
 }
 
@@ -71,7 +71,7 @@ template <typename T>
 forward_list<T>::forward_list() : head(nullptr), tail(nullptr), length(0) {}
 
 template <typename T>
-forward_list<T>::forward_list(unsigned initial_size) noexcept: length(initial_size) {
+forward_list<T>::forward_list(unsigned initial_size): length(initial_size) {
     if (initial_size == 0) {
         head = tail = nullptr;
         return;
@@ -89,7 +89,7 @@ forward_list<T>::forward_list(unsigned initial_size) noexcept: length(initial_si
 }
 
 template <typename T>
-forward_list<T>::forward_list(const T* data, unsigned initial_size) noexcept: length(initial_size) {
+forward_list<T>::forward_list(const T* data, unsigned initial_size): length(initial_size) {
     if (initial_size == 0) {
         head = tail = nullptr;
         return;
@@ -108,7 +108,7 @@ forward_list<T>::forward_list(const T* data, unsigned initial_size) noexcept: le
 }
 
 template <typename T>
-forward_list<T>::forward_list(const forward_list& other) noexcept: length(other.length) {
+forward_list<T>::forward_list(const forward_list& other): length(other.length) {
     if (other.head == nullptr) {
         head = tail = nullptr;
         return;
@@ -196,16 +196,16 @@ T forward_list<T>::get_last() const {
 }
 
 template <typename T>
-auto forward_list<T>::begin() ->  forward_list<T>::forward_iterator { return forward_iterator(head); }
+auto forward_list<T>::begin() ->  forward_list<T>::iterator { return iterator(head); }
 
 template <typename T>
-auto forward_list<T>::end() -> forward_list<T>::forward_iterator { return forward_iterator(nullptr); }
+auto forward_list<T>::end() -> forward_list<T>::iterator { return iterator(nullptr); }
 
 template <typename T>
-auto forward_list<T>::begin() const ->  forward_list<T>::const_forward_iterator { return const_forward_iterator(head); }
+auto forward_list<T>::begin() const ->  forward_list<T>::const_iterator { return const_iterator(head); }
 
 template <typename T>
-auto forward_list<T>::end() const -> forward_list<T>::const_forward_iterator { return const_forward_iterator(nullptr); }
+auto forward_list<T>::end() const -> forward_list<T>::const_iterator { return const_iterator(nullptr); }
 
 
 template <typename T>

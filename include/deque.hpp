@@ -28,7 +28,7 @@ private:
         auto end()   const { return data.end(); }
     };
     
-    Container<segment*> map;
+    Container<segment*> mapa;
     static const size_t segment_size = 8;
     size_t first_elem_idx; //<segment_size
     size_t last_elem_idx;//<segment_size
@@ -39,6 +39,7 @@ public:
     explicit deque(size_t initial_size);
     deque(const deque& other);
     deque(deque&& other) noexcept;
+    deque& operator=(const deque& other);
     ~deque();
 
     deque<Container, T>* push_back(const T& value) ;
@@ -48,14 +49,14 @@ public:
     T& operator[](size_t index) ;
     const T& operator[](size_t index) const ;
 
-    T get_first() const;
-    T get_last() const;
+    T front() const;
+    T back() const;
     size_t size() const;
 
-    Container<T>::iterator begin();
-    Container<T>::iterator end();
-    Container<T>::const_iterator begin() const;
-    Container<T>::const_iterator end() const;
+    typename Container<T>::iterator begin();
+    typename Container<T>::iterator end();
+    typename Container<T>::const_iterator begin() const;
+    typename Container<T>::const_iterator end() const;
 
     //какая-то попа
 
@@ -63,8 +64,8 @@ public:
     void sort();
     template <typename Func>
     deque<Container, T>* map(Func func) const;
-    template <typename Predicate>
-    deque<Container, T>* where(Predicate pred) const;
+    template <typename Func>
+    deque<Container, T>* where(Func pred) const;
     template <typename Acc, typename Func>
     Acc reduce(Acc init, Func func) const;
     deque<Container, T>* concat(const deque<Container, T>& other) const;
@@ -72,7 +73,7 @@ public:
     size_t find_subsequence(const deque<Container, T>& pattern) const;
     bool less_than(T a, T b){return a < b;} //чтоб функция по умолчанию была
     template <typename Func>
-    deque<Container, T>* merge(const deque<Container, T>* a, const deque<Container, T>* b, Func func = less_than);
+    deque<Container, T>* merge(const deque<Container, T>* b, Func func = less_than);
 };
 
 #include "deque.tpp"

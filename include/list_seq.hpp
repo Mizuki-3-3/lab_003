@@ -18,8 +18,8 @@ public:
 
     list_seq& operator=(const list_seq& other);
 
-    T get_first() const override;
-    T get_last() const override;
+    T front() const override;
+    T back() const override;
     unsigned size() const override;
 
     sequence<T>* push_back(const T& item) override;
@@ -46,6 +46,8 @@ public:
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
     using value_type = T;
+    using iterator = forward_list<T>::iterator;
+    using const_iterator = forward_list<T>::const_iterator;
 };
 
 #include "list_seq.tpp"

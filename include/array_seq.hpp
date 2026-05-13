@@ -15,8 +15,8 @@ public:
     ~array_seq();
     array_seq& operator=(const array_seq& other);
 
-    T get_first() const override;
-    T get_last() const override;
+    T front() const override;
+    T back() const override;
     unsigned size() const override;
 
     sequence<T>* push_back(const T& item) override;
@@ -42,6 +42,8 @@ public:
     U reduce(Func f, U initial) const;
 
     using value_type = T;
+    using iterator = dyn_arr<T>::iterator;
+    using const_iterator = dyn_arr<T>::const_iterator;
 };
 
 #include "array_seq.tpp"
