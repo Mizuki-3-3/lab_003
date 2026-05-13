@@ -11,7 +11,7 @@ private:
     
     node* head;
     node* tail;
-    unsigned length;
+    size_t length;
 public:
     class iterator {//*, ->, ++, ++(int), ==, !=, 
         node* curr;
@@ -38,17 +38,17 @@ public:
     };
 
     forward_list();
-    explicit forward_list(unsigned initial_size);
-    forward_list(const T* data, unsigned initial_size);
+    explicit forward_list(size_t initial_size);
+    forward_list(const T* data, size_t initial_size);
     forward_list(const forward_list& other);
     ~forward_list();
 
-    T& operator[](unsigned index);
-    const T& operator[](unsigned index) const;
+    T& operator[](size_t index);
+    const T& operator[](size_t index) const;
     forward_list& operator=(forward_list other);
     forward_list operator+(const forward_list& right);
 
-    unsigned size() const;
+    size_t size() const;
     T get_first() const;
     T get_last() const;
 
@@ -57,7 +57,7 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
-    forward_list<T> slice(unsigned start, unsigned end);
+    forward_list<T> slice(size_t start, size_t end);
 
 };
 

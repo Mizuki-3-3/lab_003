@@ -11,11 +11,10 @@
 #include <functional>
 #include <cctype>
 #include <variant>
-#include <cmath>   // для std::abs, std::round, std::roundf
+#include <cmath>
 
 using namespace ftxui;
 
-// ============================ Глобальные объекты деков ============================
 deque<list_seq, int>   my_deque_list_int;
 deque<list_seq, float> my_deque_list_float;
 deque<list_seq, char>  my_deque_list_char;
@@ -24,7 +23,6 @@ deque<array_seq, int>   my_deque_array_int;
 deque<array_seq, float> my_deque_array_float;
 deque<array_seq, char>  my_deque_array_char;
 
-// ============================ Глобальные переменные интерфейса ============================
 std::vector<std::string> display_items;
 int selected_item = 0, selected_container = 0, selected_data_type = 0, selected_mode = 0;
 int selected_map_func = 0, selected_reduce_func = 0, selected_where_func = 0;
@@ -47,7 +45,6 @@ std::vector<std::string> reduce_func_for_int = {"min", "max", "sum", "product"};
 std::vector<std::string> reduce_func_for_float = {"min", "max", "sum", "product", "среднее арифметическое"};
 std::vector<std::string> reduce_func_for_char = {"кол-во гласных", "кол-во цифр", "кол-во согласных", "самый большой ascii"};
 
-// ============================ Вспомогательные функции ============================
 template<typename V>
 V parse_value(const std::string& s, bool& ok) {
     ok = true;
@@ -86,7 +83,6 @@ std::string to_string_impl(const T& value) {
     }
 }
 
-// Удаление элемента по индексу из дека (создаём новый дек и перемещаем)
 template<template<typename> class Container, typename T>
 void erase_at(deque<Container, T>& deq, unsigned idx) {
     if (idx >= deq.size()) return;
@@ -94,10 +90,9 @@ void erase_at(deque<Container, T>& deq, unsigned idx) {
     for (unsigned i = 0; i < deq.size(); ++i) {
         if (i != idx) temp.push_back(deq[i]);
     }
-    deq = std::move(temp); // предполагаем, что перемещающее присваивание корректно
+    deq = std::move(temp);
 }
 
-// Обновить отображаемые элементы (текущий дек -> display_items)
 void update_display_items() {
     display_items.clear();
     auto add_from_deque = [&](auto& deq) {
@@ -153,7 +148,6 @@ void delete_selected() {
     }
 }
 
-// Парсинг дека из строки вида "1,2,3" или "a,b,c"
 template<template<typename> class Container, typename T>
 deque<Container, T> parse_deque_from_string(const std::string& str) {
     deque<Container, T> result;
@@ -170,7 +164,6 @@ deque<Container, T> parse_deque_from_string(const std::string& str) {
     return result;
 }
 
-// Основная функция применения операции
 template<template<typename> class Container, typename T>
 void apply_modify_op(deque<Container, T>* deq, const std::string& val_str, int idx,
                      const std::string& second_deque_str) {
@@ -241,7 +234,7 @@ void apply_modify_op(deque<Container, T>* deq, const std::string& val_str, int i
                 update_display_items();
                 break;
             }
-            case 4: { // reduce (исправлен порядок аргументов)
+            case 4: { // reduce 
                 std::string result_str;
                 if constexpr (std::is_same_v<T, int>) {
                     switch (selected_reduce_func) {
@@ -396,7 +389,7 @@ void apply_modify_op(deque<Container, T>* deq, const std::string& val_str, int i
                 else last_result = "Найдено на позиции: " + std::to_string(pos);
                 break;
             }
-            case 9: { // find subdeque
+            case 9: {
                 if (second_deque_str.empty()) throw invalid_argument();
                 auto sub = parse_deque_from_string<Container, T>(second_deque_str);
                 size_t pos = deq->find_subsequence(sub);
@@ -404,8 +397,8 @@ void apply_modify_op(deque<Container, T>* deq, const std::string& val_str, int i
                 else last_result = "Поддек найден на позиции: " + std::to_string(pos);
                 break;
             }
-            case 10: { // merge (исправлен вызов – передан функтор сравнения)
-                if (second_deque_str.empty()) throw invalid_argument("Не указан второй дек для merge");
+            case 10: { // merge
+                if (second_deque_str.empty()) throw invalid_argument();
                 auto other = parse_deque_from_string<Container, T>(second_deque_str);
                 auto new_deq = deq->merge(&other, std::less<T>());
                 *deq = std::move(*new_deq);
@@ -431,7 +424,6 @@ void apply_modify_op(deque<Container, T>* deq, const std::string& val_str, int i
     }
 }
 
-// ============================ UI ============================
 void start_() {
     auto screen = ScreenInteractive::Fullscreen();
 
@@ -453,29 +445,29 @@ void start_() {
     Component input_second = Input(&input_second_deque, "второй дек (элементы через запятую)") | border;
 
     Component mode_panels = Container::Tab({
-        input_value,                // append
-        input_value,                // prepend
+        input_value,// append
+        input_value,// prepend
         Container::Vertical({input_index, input_value}), // insert
-        Container::Vertical({       // map
+        Container::Vertical({// map
             Dropdown(map_func_for_int, &selected_map_func),
             Dropdown(map_func_for_float, &selected_map_func),
             Dropdown(map_func_for_char, &selected_map_func)
         }),
-        Container::Vertical({       // reduce
+        Container::Vertical({/// reduce
             Dropdown(reduce_func_for_int, &selected_reduce_func),
             Dropdown(reduce_func_for_float, &selected_reduce_func),
             Dropdown(reduce_func_for_char, &selected_reduce_func)
         }),
-        Container::Vertical({       // where
+        Container::Vertical({//where
             Dropdown(where_func_for_int, &selected_where_func),
             Dropdown(where_func_for_float, &selected_where_func),
             Dropdown(where_func_for_char, &selected_where_func)
         }),
-        input_value,                // sort (не требует ввода)
-        input_second,               // concat
-        input_value,                // find
-        input_second,               // find subdeque
-        input_second                // merge
+        input_value,// sort (не требует ввода)
+        input_second,// concat
+        input_value, // find
+        input_second,// find subdeque
+        input_second// merge
     }, &selected_mode);
 
     auto menu = Menu(&display_items, &selected_item);
@@ -525,7 +517,7 @@ void start_() {
             std::visit([&](auto* deq) {
                 if (!deq) return;
                 using DeqType = std::decay_t<decltype(*deq)>;
-                using T = typename DeqType::value_type; // предполагаем, что в deque есть value_type
+                using T = typename DeqType::value_type;
                 apply_modify_op(deq, input_str, idx, input_second_deque);
                 input_str.clear();
                 input_idx.clear();
@@ -563,9 +555,4 @@ void start_() {
     });
 
     screen.Loop(final_renderer);
-}
-
-int main() {
-    start_();
-    return 0;
 }

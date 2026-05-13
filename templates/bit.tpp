@@ -30,7 +30,7 @@ bit<T>& bit<T>::operator=(const bit& other) {
 }
 
 template <std::integral T>
-unsigned bit<T>::size() const { return len; }
+size_t bit<T>::size() const { return len; }
 
 template <std::integral T>
 bool bit<T>::operator[](size_t idx) const {

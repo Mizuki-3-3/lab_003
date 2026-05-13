@@ -6,7 +6,7 @@ template<typename T>
 class dyn_arr {
 private:
     T* data;
-    unsigned length;
+    size_t length;
 public:
     class iterator{ //*, ->, ++, --, ==,!=, +=,+,-=, -,[], -,><
         T* current;
@@ -67,13 +67,13 @@ public:
     };
 
     dyn_arr();
-    explicit dyn_arr(unsigned initial_size);
-    dyn_arr(const T* items, unsigned initial_size);
+    explicit dyn_arr(size_t initial_size);
+    dyn_arr(const T* items, size_t initial_size);
     dyn_arr(const dyn_arr& other);
     ~dyn_arr();
 
-    T& operator[](unsigned index);
-    const T& operator[](unsigned index) const;
+    T& operator[](size_t index);
+    const T& operator[](size_t index) const;
 
     iterator begin();
     const_iterator begin() const;
@@ -83,8 +83,8 @@ public:
     dyn_arr& operator=(const dyn_arr&) = delete;
     dyn_arr& operator=(dyn_arr other);
 
-    unsigned size() const; 
-    void resize(unsigned new_size);
+    size_t size() const; 
+    void resize(size_t new_size);
 };
 
 #include "dyn_arr.tpp"

@@ -10,8 +10,8 @@ private:
 
 public:
     immutable_array_seq();
-    explicit immutable_array_seq(unsigned initial_size);
-    immutable_array_seq(const T* items, unsigned count);
+    explicit immutable_array_seq(size_t initial_size);
+    immutable_array_seq(const T* items, size_t count);
     immutable_array_seq(const immutable_array_seq& other);
     immutable_array_seq(const dyn_arr<T>& other);
     ~immutable_array_seq();
@@ -20,17 +20,17 @@ public:
 
     T get_first() const override;
     T get_last() const override;
-    unsigned size() const override;
+    size_t size() const override;
 
     sequence<T>* push_back(const T& item) override;
     sequence<T>* push_front(const T& item) override;
-    sequence<T>* insert(const T& item, unsigned index) override;
+    sequence<T>* insert(const T& item, size_t index) override;
     sequence<T>* concat(sequence<T>* other) override;
-    sequence<T>* get_subsequence(unsigned start, unsigned end) const override;
-    unsigned find(const T& value) const override;
+    sequence<T>* get_subsequence(size_t start, size_t end) const override;
+    size_t find(const T& value) const override;
 
-    T& operator[](unsigned index) override;
-    const T& operator[](unsigned index) const override;
+    T& operator[](size_t index) override;
+    const T& operator[](size_t index) const override;
 
     auto begin() { return arr->begin(); }
     auto end()   { return arr->end(); }

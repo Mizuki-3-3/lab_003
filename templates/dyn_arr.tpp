@@ -173,22 +173,22 @@ template<typename T>
 dyn_arr<T>::dyn_arr() : data(nullptr), length(0) {}
 
 template<typename T>
- dyn_arr<T>::dyn_arr(unsigned initial_size) : data(new T[initial_size]), length(initial_size) {
+ dyn_arr<T>::dyn_arr(size_t initial_size) : data(new T[initial_size]), length(initial_size) {
     if (data == nullptr) throw null_ptr();
 }
 
 template<typename T>
-dyn_arr<T>::dyn_arr(const T* items, unsigned initial_size) : data(new T[initial_size]), length(initial_size) {
+dyn_arr<T>::dyn_arr(const T* items, size_t initial_size) : data(new T[initial_size]), length(initial_size) {
     if (data == nullptr) throw null_ptr();
     if (items == nullptr && initial_size > 0) throw null_ptr();
-    for (unsigned i = 0; i < length; ++i)
+    for (size_t i = 0; i < length; ++i)
         data[i] = items[i];
 }
 
 template<typename T>
 dyn_arr<T>::dyn_arr(const dyn_arr& other) : data(new T[other.length]), length(other.length) {
     if (data == nullptr) throw null_ptr();
-    for (unsigned i = 0; i < length; ++i)
+    for (size_t i = 0; i < length; ++i)
         data[i] = other.data[i];
 }
 
@@ -196,13 +196,13 @@ template<typename T>
 dyn_arr<T>::~dyn_arr() { delete[] data; }
 
 template<typename T>
-T& dyn_arr<T>::operator[](unsigned index) {
+T& dyn_arr<T>::operator[](size_t index) {
     if (index >= length) throw index_out_of_range();
     return data[index];
 }
 
 template<typename T>
-const T& dyn_arr<T>::operator[](unsigned index) const {
+const T& dyn_arr<T>::operator[](size_t index) const {
     if (index >= length) throw index_out_of_range();
     return data[index];
 }
@@ -221,7 +221,7 @@ typename dyn_arr<T>::const_iterator dyn_arr<T>::end() const { return const_itera
 
 
 template<typename T>
-unsigned dyn_arr<T>::size() const { return length; }
+size_t dyn_arr<T>::size() const { return length; }
 
 template<typename T>
 dyn_arr<T>& dyn_arr<T>::operator=(dyn_arr other) {
@@ -231,11 +231,11 @@ dyn_arr<T>& dyn_arr<T>::operator=(dyn_arr other) {
 }
 
 template<typename T>
-void dyn_arr<T>::resize(unsigned new_size) {
+void dyn_arr<T>::resize(size_t new_size) {
     T* new_data = new T[new_size];
     if (new_data == nullptr) throw null_ptr();
-    unsigned copy_size = (new_size < length) ? new_size : length;
-    for (unsigned i = 0; i < copy_size; ++i)
+    size_t copy_size = (new_size < length) ? new_size : length;
+    for (size_t i = 0; i < copy_size; ++i)
         new_data[i] = data[i];
     delete[] data;
     data = new_data;

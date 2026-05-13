@@ -71,7 +71,7 @@ template <typename T>
 forward_list<T>::forward_list() : head(nullptr), tail(nullptr), length(0) {}
 
 template <typename T>
-forward_list<T>::forward_list(unsigned initial_size): length(initial_size) {
+forward_list<T>::forward_list(size_t initial_size): length(initial_size) {
     if (initial_size == 0) {
         head = tail = nullptr;
         return;
@@ -79,7 +79,7 @@ forward_list<T>::forward_list(unsigned initial_size): length(initial_size) {
     head = new node(T());
     if (head == nullptr) throw null_ptr();
     node* curr = head;
-    for (unsigned i = 1; i < initial_size; ++i) {
+    for (size_t i = 1; i < initial_size; ++i) {
         curr->next = new node(T());
         if (curr->next == nullptr) throw null_ptr();
         curr = curr->next;
@@ -89,7 +89,7 @@ forward_list<T>::forward_list(unsigned initial_size): length(initial_size) {
 }
 
 template <typename T>
-forward_list<T>::forward_list(const T* data, unsigned initial_size): length(initial_size) {
+forward_list<T>::forward_list(const T* data, size_t initial_size): length(initial_size) {
     if (initial_size == 0) {
         head = tail = nullptr;
         return;
@@ -98,7 +98,7 @@ forward_list<T>::forward_list(const T* data, unsigned initial_size): length(init
     head = new node(data[0]);
     if (head == nullptr) throw null_ptr();
     node* curr = head;
-    for (unsigned i = 1; i < initial_size; ++i) {
+    for (size_t i = 1; i < initial_size; ++i) {
         curr->next = new node(data[i]);
         if (curr->next == nullptr) throw null_ptr();
         curr = curr->next;
@@ -138,18 +138,18 @@ forward_list<T>::~forward_list() {
 }
 
 template <typename T>
-T& forward_list<T>::operator[](unsigned index) {
+T& forward_list<T>::operator[](size_t index) {
     if (index >= length) throw index_out_of_range();
     node* curr = head;
-    for (unsigned i = 0; i < index; ++i) curr = curr->next;
+    for (size_t i = 0; i < index; ++i) curr = curr->next;
     return curr->value;
 }
 
 template <typename T>
-const T& forward_list<T>::operator[](unsigned index) const {
+const T& forward_list<T>::operator[](size_t index) const {
     if (index >= length) throw index_out_of_range();
     node* curr = head;
-    for (unsigned i = 0; i < index; ++i) curr = curr->next;
+    for (size_t i = 0; i < index; ++i) curr = curr->next;
     return curr->value;
 }
 
@@ -181,7 +181,7 @@ forward_list<T> forward_list<T>::operator+(const forward_list& right) {
 }
 
 template <typename T>
-unsigned forward_list<T>::size() const { return length; }
+size_t forward_list<T>::size() const { return length; }
 
 template <typename T>
 T forward_list<T>::get_first() const {
@@ -209,13 +209,13 @@ auto forward_list<T>::end() const -> forward_list<T>::const_iterator { return co
 
 
 template <typename T>
-forward_list<T> forward_list<T>::slice(unsigned start, unsigned end) {
+forward_list<T> forward_list<T>::slice(size_t start, size_t end) {
     if (start > end || end > length) throw index_out_of_range();
     forward_list<T> result(end - start);
     node* cur = head;
     node* cur_r = result.head;
-    for (unsigned i = 0; i < start; ++i) cur = cur->next;
-    for (unsigned i = start; i < end; ++i) {
+    for (size_t i = 0; i < start; ++i) cur = cur->next;
+    for (size_t i = start; i < end; ++i) {
         cur_r->value = cur->value;
         cur_r = cur_r->next;
         cur = cur->next;

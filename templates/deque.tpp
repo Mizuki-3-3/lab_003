@@ -82,17 +82,10 @@ deque<Container, T>::deque(): mapa(), first_elem_idx(0), last_elem_idx(0){}
 template <template<typename> class Container, typename T>
 deque<Container, T>& deque<Container, T>::operator=(const deque<Container, T>& other) {
     if (this != &other) {
-        first_elem_idx = other.first_elem_idx;
-        last_elem_idx = other.last_elem_idx;
-        mapa(other.mapa.size());
-        for (size_t i = 0; i < other.mapa.size(); i++){
-            segment* seg = new segment();
-            mapa[i] = seg;
-            for (size_t j = 0; j < segment_size; j++){
-                (*this)[i*segment_size+j] = other[i*segment_size+j];
-            }
-        }
-        
+        deque temp(other);
+        std::swap(mapa, temp.mapa);
+        std::swap(first_elem_idx, temp.first_elem_idx);
+        std::swap(last_elem_idx, temp.last_elem_idx);
     }
     return *this;
 }
@@ -145,7 +138,7 @@ deque<Container, T>* deque<Container, T>::push_front(const T& value) {
 }
 
 template <template<typename> class Container, typename T>
-deque<Container, T>* deque<Container, T>::insert(const T& item, unsigned index) {
+deque<Container, T>* deque<Container, T>::insert(const T& item, size_t index) {
     size_t sz = size();
     if (index > sz) throw index_out_of_range();
     if (index == 0) return push_front(item);
@@ -210,11 +203,11 @@ auto deque<Container, T>::end() const -> typename Container<T>::const_iterator{
 }
 
 template <template<typename> class Container, typename T>
-unsigned deque<Container, T>::find(const T& value) const {
+size_t deque<Container, T>::find(const T& value) const {
     size_t sz = size();
     for (size_t i = 0; i < sz; i++) {
         if ((*this)[i] == value)
-            return static_cast<unsigned>(i);
+            return static_cast<size_t>(i);
     }
     throw not_found();
 }
@@ -278,12 +271,12 @@ deque<Container, T>* deque<Container, T>::concat(const deque<Container, T>& othe
 }
 
 template <template<typename> class Container, typename T>
-deque<Container, T>* deque<Container, T>::subdeque(unsigned start, unsigned end) const {
+deque<Container, T>* deque<Container, T>::subdeque(size_t start, size_t end) const {
     size_t sz = size();
     if (start > end || start > sz || end > sz+1)
         throw index_out_of_range();
     deque<Container, T>* result = new deque<Container, T>;
-    for (unsigned i = start; i < end; i++)
+    for (size_t i = start; i < end; i++)
         result->push_back((*this)[i]);
     return result;
 }
