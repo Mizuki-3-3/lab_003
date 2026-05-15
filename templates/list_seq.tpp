@@ -1,5 +1,6 @@
 #include "list_seq.hpp"
 #include "errors.hpp"
+#include <initializer_list>
 
 template<typename T>
 list_seq<T>::list_seq() : list(new forward_list<T>()) {
@@ -24,6 +25,14 @@ template<typename T>
 list_seq<T>::list_seq(const list_seq& other) : list(new forward_list<T>(*other.list)) {
     if (list == nullptr) throw null_ptr();
 }
+
+template<typename T>
+list_seq<T>::list_seq(const list_seq&& move) {
+    list = std::move(move.list);
+}
+
+template<typename T>
+list_seq<T>::list_seq(const std::initializer_list<T> initial_l): list(new forward_list<T>(initial_l)){}
 
 template<typename T>
 list_seq<T>::~list_seq() { delete list; }
@@ -56,27 +65,13 @@ size_t list_seq<T>::size() const {
 
 template<typename T>
 sequence<T>* list_seq<T>::push_back(const T& item) {
-    size_t new_size = list->size() + 1;
-    forward_list<T>* new_list = new forward_list<T>(new_size);
-    if (!new_list) throw null_ptr();
-    for (size_t i = 0; i < list->size(); ++i)
-        (*new_list)[i] = (*list)[i];
-    (*new_list)[list->size()] = item;
-    delete list;
-    list = new_list;
+    list -> insert_after(list->before_end(), item);
     return this;
 }
 
 template<typename T>
 sequence<T>* list_seq<T>::push_front(const T& item) {
-    size_t new_size = list->size() + 1;
-    forward_list<T>* new_list = new forward_list<T>(new_size);
-    if (!new_list) throw null_ptr();
-    (*new_list)[0] = item;
-    for (size_t i = 0; i < list->size(); ++i)
-        (*new_list)[i + 1] = (*list)[i];
-    delete list;
-    list = new_list;
+    list -> insert_after(list->before_begin(),  item);
     return this;
 }
 
@@ -112,13 +107,20 @@ sequence<T>* list_seq<T>::get_subsequence(size_t start, size_t end) const {
 }
 
 template<typename T>
-size_t list_seq<T>::find(const T& value) const {
-    size_t idx = 0;
-    for (auto it = list->begin(); it != list->end(); ++it, ++idx) {
-        if (*it == value) return idx;
+list_seq<T>* list_seq<T>::insert(iterator place, const T& item){
+    if (place == end()){return this->push_back(item);}
+    if (place == begin()){return this->push_front(item);}
+    iterator curr = begin();
+    while (curr + 1 != place && curr != end()){
+        curr++;
+        if (curr + 1 == place){
+            list->insert_after(curr, item);
+            return this;
+        }
     }
-    throw invalid_argument();
+    throw place_out_of_range();
 }
+
 
 template<typename T>
 T& list_seq<T>::operator[](size_t index) {

@@ -20,6 +20,14 @@ array_seq<T>::array_seq(const array_seq& other) : arr(new dyn_arr<T>(*other.arr)
 }
 
 template<typename T>
+array_seq<T>::array_seq(const array_seq&& move){
+    arr = std::move(move.arr);
+}
+
+template<typename T>
+array_seq<T>::array_seq(const std::initializer_list<T> initial_l): arr(new dyn_arr<T>(initial_l)){}
+
+template<typename T>
 array_seq<T>::array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {
     if (arr == nullptr) throw null_ptr();
 }
@@ -108,11 +116,9 @@ sequence<T>* array_seq<T>::get_subsequence(size_t start, size_t end) const {
 }
 
 template<typename T>
-size_t array_seq<T>::find(const T& value) const {
-    for (size_t i = 0; i < size(); ++i) {
-        if ((*arr)[i] == value) return i;
-    }
-    throw invalid_argument();
+array_seq<T>* array_seq<T>::insert(iterator index, const T& item){
+    size_t idx = index - arr->begin();
+    return this->insert(item, idx);
 }
 
 template<typename T>

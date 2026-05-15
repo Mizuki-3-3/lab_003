@@ -17,32 +17,34 @@ int assert_fail(const char* expr, const char* file, unsigned int line);
 #define COLOR_RED     "\033[31m"
 #define COLOR_RESET   "\033[0m"
 
-#define EXPECT_EQ(expected, actual, msg) \
+#define EXPECT_EQ(input, expected, actual) \
     do { \
+        auto _inp = (input); \
         auto _exp = (expected); \
         auto _act = (actual); \
+        std::cerr << __FILE__ << ":" << __LINE__ << std::endl<< " Input: " << input << std::endl; \
         if (_exp == _act) { \
-            std::cout << COLOR_GREEN << __FILE__ << ":" << __LINE__ << " " \
-                      << msg << " Expected: " << _exp << ", Actual: " << _act \
+            std::cerr << COLOR_GREEN \
+                       << " Expected: " << _exp << ", Actual: " << _act \
                       << " [PASS]" << COLOR_RESET << std::endl; \
             int_success(); \
         } else { \
-            std::cout << COLOR_RED << __FILE__ << ":" << __LINE__ << " " \
-                      << msg << " Expected: " << _exp << ", Actual: " << _act \
+            std::cerr << COLOR_RED << \
+                      << " Expected: " << _exp << ", Actual: " << _act \
                       << " [FAIL]" << COLOR_RESET << std::endl; \
             int_fail(); \
         } \
     } while(0)
 
-#define EXPECT_TRUE(cond, msg) \
+#define EXPECT_TRUE(con) \
     do { \
         if (cond) { \
             std::cout << COLOR_GREEN << __FILE__ << ":" << __LINE__ << " " \
-                      << msg << " [PASS]" << COLOR_RESET << std::endl; \
+                       << " [PASS]" << COLOR_RESET << std::endl; \
             int_success(); \
         } else { \
             std::cout << COLOR_RED << __FILE__ << ":" << __LINE__ << " " \
-                      << msg << " [FAIL]" << COLOR_RESET << std::endl; \
+                       << " [FAIL]" << COLOR_RESET << std::endl; \
             int_fail(); \
         } \
     } while(0)

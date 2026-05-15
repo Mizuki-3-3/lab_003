@@ -1,5 +1,6 @@
 #include "dyn_arr.hpp"
 #include "errors.hpp"
+#include <utility>
 
 //iterator
 template<typename T>
@@ -190,6 +191,19 @@ dyn_arr<T>::dyn_arr(const dyn_arr& other) : data(new T[other.length]), length(ot
     if (data == nullptr) throw null_ptr();
     for (size_t i = 0; i < length; ++i)
         data[i] = other.data[i];
+}
+
+template<typename T>
+dyn_arr<T>::dyn_arr(const dyn_arr&& move){
+    data = std::move(move.data);
+    length = std::move(move.length);
+}
+
+template<typename T>
+dyn_arr<T>::dyn_arr(const std::initializer_list<T> initial_l): data(new T[initial_l.size()]), length(initial_l.size()){
+    for (size_t i = 0; i < length; i++){
+        data[i] = initial_l[i];
+    }
 }
 
 template<typename T>

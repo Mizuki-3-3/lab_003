@@ -3,5 +3,7 @@
 *.a
 .vscode
 desktop.ini
-c_cpp_properties.json
 tests
+*.txt
+*.json
+include/d.cpp

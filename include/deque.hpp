@@ -1,50 +1,30 @@
 #pragma once
-
 #include <cstddef>
-#include <errors.hpp>
 
-template <template<typename> class Container, typename T>
+template <template<typename> class Container, typename T, template<typename> class InternalContainer = Container, size_t SEGSIZE = 8>
 class deque{
-
+using segment = InternalContainer<T>;
+using iterator = typename InternalContainer<T>::iterator;
+using const_iterator = typename InternalContainer<T>::const_iterator;
 private:
-    class segment {
-    private:
-        Container<T> data;
-    public:
-        segment();
-        segment(const segment& other);
-        ~segment() = default;
-
-        size_t size() const;
-
-        T& operator[](size_t idx);
-        const T& operator[](size_t idx) const;
-        Container<T>& operator*();
-        Container<T>* operator->();
     
-        auto begin() { return data.begin(); }
-        auto end()   { return data.end(); }
-        auto begin() const { return data.begin(); }
-        auto end()   const { return data.end(); }
-    };
-    
-    Container<segment*> mapa;
-    static const size_t segment_size = 8;
+    Container<segment*> d_segments;
+    static constexpr size_t segment_size = SEGSIZE;
     size_t first_elem_idx; //<segment_size
     size_t last_elem_idx;//<segment_size
-
     
 public:
-    deque();
+    explicit deque();
     explicit deque(size_t initial_size);
     deque(const deque& other);
-    deque(deque&& other) noexcept;
+    deque(deque&& move);
     deque& operator=(const deque& other);
     ~deque();
 
-    deque<Container, T>* push_back(const T& value) ;
-    deque<Container, T>* push_front(const T& value) ;
-    deque<Container, T>* insert(const T& item, size_t index);//пользуемся insert и push_back
+    deque<Container, T, InternalContainer, SEGSIZE>* push_back(const T& value) ;
+    deque<Container, T, InternalContainer, SEGSIZE>* push_front(const T& value) ;
+    deque<Container, T, InternalContainer, SEGSIZE>* insert(const T& item, iterator place);//пользуемся insert т.к. есть во всех
+    deque<Container, T, InternalContainer, SEGSIZE>* insert(const T& item, const_iterator place);
 
     T& operator[](size_t index) ;
     const T& operator[](size_t index) const ;
@@ -58,9 +38,9 @@ public:
     typename Container<T>::const_iterator begin() const;
     typename Container<T>::const_iterator end() const;
 
-    //какая-то попа
+    iterator find(const T& value);///< returns iterator
+    const_iterator find(const T& value) const;
 
-    size_t find(const T& value)  const;
     void sort();
     template <typename Func>
     deque<Container, T>* map(Func func) const;
@@ -70,11 +50,10 @@ public:
     Acc reduce(Acc init, Func func) const;
     deque<Container, T>* concat(const deque<Container, T>& other) const;
     deque<Container, T>* subdeque(size_t start, size_t end) const;
-    size_t find_subsequence(const deque<Container, T>& pattern) const;
-    bool less_than(T a, T b){return a < b;} //чтоб функция по умолчанию была
+    iterator find_subsequence(const deque<Container, T>& pattern);/// < ret iterator
+    const_iterator find_subsequence(const deque<Container, T>& pattern) const;
     template <typename Func>
-    deque<Container, T>* merge(const deque<Container, T>* b, Func func = less_than);
+    deque<Container, T>* merge(const deque<Container, T>* b, Func func);
     using value_type = T;
 };
 
-#include "deque.tpp"

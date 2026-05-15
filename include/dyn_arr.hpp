@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utility>
+#include <initializer_list>
 
 template<typename T>
 class dyn_arr {
@@ -34,9 +34,8 @@ public:
         bool operator> (const iterator& other) const;
         bool operator<=(const iterator& other) const;
         bool operator>=(const iterator& other) const;
-
     };
-    
+
     class const_iterator {
         const T* current;
     public:
@@ -66,10 +65,13 @@ public:
 
     };
 
-    dyn_arr();
+    explicit dyn_arr();
     explicit dyn_arr(size_t initial_size);
     dyn_arr(const T* items, size_t initial_size);
     dyn_arr(const dyn_arr& other);
+    dyn_arr(const dyn_arr&& move);
+    dyn_arr(const std::initializer_list<T> initial_l);
+
     ~dyn_arr();
 
     T& operator[](size_t index);
@@ -77,7 +79,7 @@ public:
 
     iterator begin();
     const_iterator begin() const;
-   iterator end();
+    iterator end();
     const_iterator end() const;
 
     dyn_arr& operator=(const dyn_arr&) = delete;
@@ -86,5 +88,3 @@ public:
     size_t size() const; 
     void resize(size_t new_size);
 };
-
-#include "dyn_arr.tpp"

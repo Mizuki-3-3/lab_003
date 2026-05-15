@@ -36,12 +36,21 @@ immutable_list_seq<T>& immutable_list_seq<T>::operator=(const immutable_list_seq
 }
 
 template<typename T>
-T immutable_list_seq<T>::get_first() const {
+immutable_list_seq<T>::immutable_list_seq(const immutable_list_seq&& move) {
+    list = std::move(move.list);
+}
+
+template<typename T>
+immutable_list_seq<T>::immutable_list_seq(const std::initializer_list<T> initial_l): list(new forward_list<T>(initial_l)){}
+
+
+template<typename T>
+T immutable_list_seq<T>::front() const {
     return list->get_first();
 }
 
 template<typename T>
-T immutable_list_seq<T>::get_last() const {
+T immutable_list_seq<T>::back() const {
     return list->get_last();
 }
 
@@ -52,46 +61,39 @@ size_t immutable_list_seq<T>::size() const {
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::push_back(const T& item) {
-    size_t new_size = list->size() + 1;
-    forward_list<T>* new_list = new forward_list<T>(new_size);
-    if (!new_list) throw null_ptr();
-    for (size_t i = 0; i < list->size(); ++i)
-        (*new_list)[i] = (*list)[i];
-    (*new_list)[list->size()] = item;
-    immutable_list_seq<T>* result = new immutable_list_seq<T>(*new_list);
-    delete new_list;
+    immutable_list_seq<T>* result = new immutable_list_seq<T>();
+    result->list->insert_after(list->before_end(), item);
     return result;
 }
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::push_front(const T& item) {
-    size_t new_size = list->size() + 1;
-    forward_list<T>* new_list = new forward_list<T>(new_size);
-    if (!new_list) throw null_ptr();
-    (*new_list)[0] = item;
-    for (size_t i = 0; i < list->size(); ++i)
-        (*new_list)[i + 1] = (*list)[i];
-    immutable_list_seq<T>* result = new immutable_list_seq<T>(*new_list);
-    delete new_list;
+    immutable_list_seq<T>* result = new immutable_list_seq<T>();
+    result->list->insert_after(list->before_begin(), item);
     return result;
 }
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::insert(const T& item, size_t index) {
-    if (index > list->size()) throw index_out_of_range();
-    if (index == 0) return push_front(item);
-    if (index == list->size()) return push_back(item);
-    size_t new_size = list->size() + 1;
-    forward_list<T>* new_list = new forward_list<T>(new_size);
-    if (!new_list) throw null_ptr();
-    for (size_t i = 0; i < index; ++i)
-        (*new_list)[i] = (*list)[i];
-    (*new_list)[index] = item;
-    for (size_t i = index; i < list->size(); ++i)
-        (*new_list)[i + 1] = (*list)[i];
-    immutable_list_seq<T>* result = new immutable_list_seq<T>(*new_list);
-    delete new_list;
+    immutable_list_seq<T>* result = new immutable_list_seq<T>();
+    result->list->insert_after(list->before_begin() + index, item);
     return result;
+}
+
+template<typename T>
+immutable_list_seq<T>* immutable_list_seq<T>::insert(iterator place, const T& item) {
+    immutable_list_seq<T>* result = new immutable_list_seq<T>(*this);
+    if (place == end()){return this->push_back(item);}
+    if (place == begin()){return this->push_front(item);}
+    iterator curr = result->begin();
+    while (curr + 1 != place && curr != end()){
+        curr++;
+        if (curr + 1 == place){
+            result->list->insert_after(curr, item);
+            return result;
+        }
+    }
+    throw place_out_of_range();
 }
 
 template<typename T>
@@ -108,12 +110,19 @@ sequence<T>* immutable_list_seq<T>::get_subsequence(size_t start, size_t end) co
 }
 
 template<typename T>
-size_t immutable_list_seq<T>::find(const T& value) const {
-    size_t idx = 0;
-    for (auto it = list->begin(); it != list->end(); ++it, ++idx) {
-        if (*it == value) return idx;
+auto immutable_list_seq<T>::find(const T& value) const -> immutable_list_seq<T>::const_iterator {
+    for (auto it = list->begin(); it != list->end(); it++) {
+        if (*it == value) return it;
     }
-    throw invalid_argument();
+    throw not_found();
+}
+
+template<typename T>
+auto immutable_list_seq<T>::find(const T& value) -> immutable_list_seq<T>::iterator {
+    for (auto it = list->begin(); it != list->end(); it++) {
+        if (*it == value) return it;
+    }
+    throw not_found();
 }
 
 template<typename T>

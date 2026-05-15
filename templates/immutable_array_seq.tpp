@@ -20,9 +20,12 @@ immutable_array_seq<T>::immutable_array_seq(const immutable_array_seq& other) : 
 }
 
 template<typename T>
-immutable_array_seq<T>::immutable_array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {
-    if (arr == nullptr) throw null_ptr();
+immutable_array_seq<T>::immutable_array_seq(const immutable_array_seq<T>&& move){
+    arr = std::move(move.arr);
 }
+
+template<typename T>
+immutable_array_seq<T>::immutable_array_seq(const std::initializer_list<T> initial_l): arr(new dyn_arr<T>(initial_l)){}
 
 template<typename T>
 immutable_array_seq<T>::~immutable_array_seq() { delete arr; }
@@ -39,13 +42,13 @@ immutable_array_seq<T>& immutable_array_seq<T>::operator=(const immutable_array_
 }
 
 template<typename T>
-T immutable_array_seq<T>::get_first() const {
+T immutable_array_seq<T>::front() const {
     if (size() == 0) throw empty_container();
     return (*arr)[0];
 }
 
 template<typename T>
-T immutable_array_seq<T>::get_last() const {
+T immutable_array_seq<T>::back() const {
     if (size() == 0) throw empty_container();
     return (*arr)[size() - 1];
 }
@@ -92,9 +95,9 @@ sequence<T>* immutable_array_seq<T>::insert(const T& item, size_t index) {
     (*new_arr)[index] = item;
     for (size_t i = index; i < arr->size(); ++i)
         (*new_arr)[i + 1] = (*arr)[i];
-    immutable_array_seq<T>* result = new immutable_array_seq<T>(*new_arr);
+    immutable_array_seq<T>* result = new immutable_array_seq<T>();
     if (result == nullptr) throw null_ptr();
-    delete new_arr;
+    result->arr = new_arr;
     return result;
 }
 
@@ -123,11 +126,9 @@ sequence<T>* immutable_array_seq<T>::get_subsequence(size_t start, size_t end) c
 }
 
 template<typename T>
-size_t immutable_array_seq<T>::find(const T& value) const {
-    for (size_t i = 0; i < size(); ++i) {
-        if ((*arr)[i] == value) return i;
-    }
-    throw invalid_argument();
+immutable_array_seq<T>* immutable_array_seq<T>::insert(const T& item, iterator index){
+    size_t idx = index - arr->begin();
+    return this->insert(item, idx);
 }
 
 template<typename T>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <initializer_list>
+
 template <typename T>
 class forward_list {
 private:
@@ -9,9 +11,9 @@ private:
     node(const T& val);
     };
     
-    node* head;
+    node* M_head;
     node* tail;
-    size_t length;
+    size_t length;//real length one more bigger
 public:
     class iterator {//*, ->, ++, ++(int), ==, !=, 
         node* curr;
@@ -21,6 +23,7 @@ public:
         T* operator->() const;
         iterator& operator++();
         iterator operator++(int);
+        iterator operator+(int right);
         bool operator!=(const iterator& other) const;
         bool operator==(const iterator& other) const;
     };
@@ -37,10 +40,12 @@ public:
         bool operator==(const const_iterator& other) const;
     };
 
-    forward_list();
+    explicit forward_list();
     explicit forward_list(size_t initial_size);
     forward_list(const T* data, size_t initial_size);
     forward_list(const forward_list& other);
+    forward_list(const forward_list&& move);
+    forward_list(const std::initializer_list<T> initial_l);
     ~forward_list();
 
     T& operator[](size_t index);
@@ -49,16 +54,16 @@ public:
     forward_list operator+(const forward_list& right);
 
     size_t size() const;
-    T get_first() const;
-    T get_last() const;
+    T front() const;
+    T back() const;
 
     iterator begin();
     iterator end();
     const_iterator begin() const;
     const_iterator end() const;
+    iterator before_begin();
+    iterator before_end();
 
     forward_list<T> slice(size_t start, size_t end);
-
+    forward_list<T>* insert_after(iterator place, const T& value);
 };
-
-#include "linked_list.tpp"
