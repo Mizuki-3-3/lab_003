@@ -1,5 +1,6 @@
 #include "array_seq.hpp"
 #include "errors.hpp"
+#include "sequence.hpp"
 
 template<typename T>
 array_seq<T>::array_seq(): arr(new dyn_arr<T>()) {}
@@ -28,9 +29,7 @@ template<typename T>
 array_seq<T>::array_seq(const std::initializer_list<T> initial_l): arr(new dyn_arr<T>(initial_l)){}
 
 template<typename T>
-array_seq<T>::array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {
-    if (arr == nullptr) throw null_ptr();
-}
+array_seq<T>::array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {}
 
 template<typename T>
 array_seq<T>::~array_seq() { delete arr; }
@@ -38,10 +37,7 @@ array_seq<T>::~array_seq() { delete arr; }
 template<typename T>
 array_seq<T>& array_seq<T>::operator=(const array_seq& other) {
     if (this != &other) {
-        dyn_arr<T>* new_arr = new dyn_arr<T>(*other.arr);
-        if (new_arr == nullptr) throw null_ptr();
-        delete arr;
-        arr = new_arr;
+        arr = other.arr;
     }
     return *this;
 }
@@ -81,7 +77,7 @@ sequence<T>* array_seq<T>::push_front(const T& item) {
 
 template<typename T>
 sequence<T>* array_seq<T>::insert(const T& item, size_t index) {
-    if (index > arr->size()) throw index_out_of_range();
+    if (index > arr->size()) throw index_out_of_range("index out in array_seq");
     if (index == 0) return push_front(item);
     if (index == arr->size()) return push_back(item);
     arr->resize(arr->size() + 1);
@@ -116,9 +112,14 @@ sequence<T>* array_seq<T>::get_subsequence(size_t start, size_t end) const {
 }
 
 template<typename T>
-array_seq<T>* array_seq<T>::insert(iterator index, const T& item){
+auto array_seq<T>::insert(const_iterator index, const T& item) -> iterator{
+    if (index == end()) {
+        push_back(item);
+        return arr->end() - 1;
+    }
     size_t idx = index - arr->begin();
-    return this->insert(item, idx);
+    insert(item, idx);
+    return arr->begin() + idx;
 }
 
 template<typename T>
@@ -156,11 +157,22 @@ sequence<T>* array_seq<T>::where(Func f) {
 
 template<typename T>
 template <typename Func, typename U>
-U array_seq<T>::reduce(Func f, U initial) const {
-    if (arr->size() == 0) throw empty_container();
+U array_seq<T>::reduce(Func f, U initial ) const {
+    if (arr->size() == 0) {return initial;}
     U acc = f(initial, (*arr)[0]);
     for (size_t i = 1; i < arr->size(); ++i) {
         acc = f(acc, (*arr)[i]);
     }
     return acc;
 }
+
+// template<typename T>
+// template <typename Func>
+// auto array_seq<T>::reduce(Func f) const {
+//     if (arr->size() == 0) throw empty_container();
+//     auto acc = (*arr)[0];
+//     for (size_t i = 1; i < arr->size(); i++) {
+//         acc = f(acc, (*arr)[i]);
+//     }
+//     return acc;
+// }

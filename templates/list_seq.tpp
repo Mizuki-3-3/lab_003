@@ -1,5 +1,6 @@
 #include "list_seq.hpp"
 #include "errors.hpp"
+#include "sequence.hpp"
 #include <initializer_list>
 
 template<typename T>
@@ -40,22 +41,19 @@ list_seq<T>::~list_seq() { delete list; }
 template<typename T>
 list_seq<T>& list_seq<T>::operator=(const list_seq& other) {
     if (this != &other) {
-        forward_list<T>* new_list = new forward_list<T>(*other.list);
-        if (new_list == nullptr) throw null_ptr();
-        delete list;
-        list = new_list;
+        list = other.list;
     }
     return *this;
 }
 
 template<typename T>
 T list_seq<T>::front() const {
-    return list->get_first();
+    return list->front();
 }
 
 template<typename T>
 T list_seq<T>::back() const {
-    return list->get_last();
+    return list->back();
 }
 
 template<typename T>
@@ -107,18 +105,18 @@ sequence<T>* list_seq<T>::get_subsequence(size_t start, size_t end) const {
 }
 
 template<typename T>
-list_seq<T>* list_seq<T>::insert(iterator place, const T& item){
-    if (place == end()){return this->push_back(item);}
-    if (place == begin()){return this->push_front(item);}
-    iterator curr = begin();
-    while (curr + 1 != place && curr != end()){
-        curr++;
-        if (curr + 1 == place){
-            list->insert_after(curr, item);
-            return this;
+auto list_seq<T>::insert(const_iterator place, const T& item) -> iterator{
+    if (place == end()){this->push_back(item); return end();}
+    if (place == begin()){this->push_front(item); return begin();}
+    const_iterator prev = begin();
+    while (prev + 1 != place && prev != end()){
+        prev++;
+        if (prev + 1 == place){
+            list->insert_after(prev, item);
+            return iterator(prev+1);
         }
     }
-    throw place_out_of_range();
+    throw iterator_out_of_range();
 }
 
 
@@ -161,7 +159,7 @@ sequence<T>* list_seq<T>::where(Func f) {
 template<typename T>
 template <typename Func, typename U>
 U list_seq<T>::reduce(Func f, U initial) const {
-    if (list->size() == 0) throw empty_container();
+    if (list->size() == 0) {return initial;}
     U acc = f(initial, (*list)[0]);
     for (size_t i = 1; i < list->size(); ++i) {
         acc = f(acc, (*list)[i]);

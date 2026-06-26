@@ -8,12 +8,13 @@ private:
     T* data;
     size_t length;
 public:
+    class const_iterator;
     class iterator{ //*, ->, ++, --, ==,!=, +=,+,-=, -,[], -,><
         T* current;
     public:
        iterator(T* ptr);
-        T& operator*();
-        T* operator->();
+        T& operator*() const;
+        T* operator->() const;
 
        iterator& operator++();
        iterator operator++(int);
@@ -27,6 +28,7 @@ public:
        iterator operator+(std::ptrdiff_t n);
        iterator& operator-=(std::ptrdiff_t n);
        iterator operator-(std::ptrdiff_t n);
+       size_t operator- (const iterator& other) const{return other.current-current;}
 
         bool operator==(const iterator& other) const;
         bool operator!=(const iterator& other) const;
@@ -34,14 +36,18 @@ public:
         bool operator> (const iterator& other) const;
         bool operator<=(const iterator& other) const;
         bool operator>=(const iterator& other) const;
+        bool operator==(const const_iterator& other) const { return current == other.current; }
+        bool operator!=(const const_iterator& other) const { return current != other.current; }
+        friend class const_iterator;
     };
 
     class const_iterator {
         const T* current;
     public:
-        const_iterator(T* ptr);
-        T& operator*();
-        T* operator->();
+        const_iterator(const T* ptr);
+        const_iterator(const iterator& other) : current(other.current) {}
+        const T& operator*() const;
+        const T* operator->();
 
         const_iterator& operator++();
         const_iterator operator++(int);
@@ -55,6 +61,7 @@ public:
         const_iterator operator+(std::ptrdiff_t n);
         const_iterator& operator-=(std::ptrdiff_t n);
         const_iterator operator-(std::ptrdiff_t n);
+        size_t operator- (const const_iterator& other) const{return other.current-current;}
 
         bool operator==(const const_iterator& other) const;
         bool operator!=(const const_iterator& other) const;
@@ -62,7 +69,9 @@ public:
         bool operator> (const const_iterator& other) const;
         bool operator<=(const const_iterator& other) const;
         bool operator>=(const const_iterator& other) const;
-
+        bool operator==(const iterator& other) const { return current == other.current; }
+        bool operator!=(const iterator& other) const { return current != other.current; }
+        friend class iterator;
     };
 
     explicit dyn_arr();
@@ -88,3 +97,4 @@ public:
     size_t size() const; 
     void resize(size_t new_size);
 };
+#include "dyn_arr.tpp"

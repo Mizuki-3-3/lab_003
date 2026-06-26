@@ -4,7 +4,7 @@ LDFLAGS = -L"C:/FTXUI/lib"
 LDLIBS = -lftxui-component -lftxui-dom -lftxui-screen
 
 TARGET = main
-SRC = main.cpp interface.cpp
+SRC = main.cpp
 
 all: $(TARGET)
 

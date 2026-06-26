@@ -3,7 +3,6 @@
 *.a
 .vscode
 desktop.ini
-tests
 *.txt
 *.json
 include/d.cpp

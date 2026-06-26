@@ -1,5 +1,7 @@
-#include "include\interface.hpp"
+#include "interface.cpp"
 int main() {
-    start_();
+    auto app = ScreenInteractive::Fullscreen();
+    DequeDemoApp demo;
+    app.Loop(demo.getRoot());
     return 0;
 }

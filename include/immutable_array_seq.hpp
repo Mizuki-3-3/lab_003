@@ -18,6 +18,7 @@ public:
     explicit immutable_array_seq(size_t initial_size);
     immutable_array_seq(const T* items, size_t count);
     immutable_array_seq(const immutable_array_seq& other);
+    immutable_array_seq(const dyn_arr<T>& other);
     immutable_array_seq(const immutable_array_seq&& move);
     immutable_array_seq(const std::initializer_list<T> initial_l);
     ~immutable_array_seq();
@@ -35,11 +36,11 @@ public:
     sequence<T>* get_subsequence(size_t start, size_t end) const override;
 
     
-    immutable_array_seq<T>* insert(iterator place, const T& item);
+    immutable_array_seq<T>* insert(const_iterator place, const T& item);
 
     T& operator[](size_t index) override;
     const T& operator[](size_t index) const override;
-
+    
     auto begin() { return arr->begin(); }
     auto end()   { return arr->end(); }
     auto begin() const { return arr->begin(); }
@@ -57,3 +58,4 @@ public:
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
 };
+#include "immutable_array_seq.tpp"

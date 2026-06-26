@@ -30,7 +30,7 @@ template <typename T>
 auto forward_list<T>::iterator::operator+(int right) -> forward_list<T>::iterator {
     iterator tmp = *this;
     for(int i = 0; i < right; i++){
-    if (curr) curr = curr->next;
+        if (tmp.curr) tmp.curr = tmp.curr->next;
     }
     return tmp; 
 }
@@ -65,6 +65,17 @@ auto forward_list<T>::const_iterator::operator++(int) -> forward_list<T>::const_
     if (curr) curr = curr->next;
     return tmp; 
 }
+
+
+template <typename T>
+auto forward_list<T>::const_iterator::operator+(int right) -> forward_list<T>::const_iterator {
+    const_iterator tmp = *this;
+    for(int i = 0; i < right; i++){
+        if (tmp.curr) tmp.curr = tmp.curr->next;
+    }
+    return tmp;
+}
+
 
 template <typename T>
 bool forward_list<T>::const_iterator::operator!=(const const_iterator& other) const {
@@ -139,7 +150,7 @@ forward_list<T>::forward_list(const forward_list& other): length(other.length) {
 }
 
 template <typename T>
-forward_list<T>::forward_list(const forward_list&& move){
+forward_list<T>::forward_list(forward_list&& move){
     length = std::move(move.length);
     M_head = std::move(move.M_head);
     tail = std::move(move.tail);
@@ -148,13 +159,13 @@ forward_list<T>::forward_list(const forward_list&& move){
 template <typename T>
 forward_list<T>::forward_list(const std::initializer_list<T> initial_l): length(initial_l.size()) {
     M_head = new node(T());
-    M_head -> next = new node(T());
     node* curr = M_head;
-    for (size_t i = 0; i<length; i++){
-        curr->next = new node(initial_l[i]);
+    for (const T& val : initial_l){
+        curr->next = new node(val);
         curr = curr->next;
     }
     tail = curr;
+    tail->next = nullptr;
 }
 
 template <typename T>
@@ -179,7 +190,7 @@ template <typename T>
 const T& forward_list<T>::operator[](size_t index) const {
     if (index >= length) throw index_out_of_range();
     node* curr = M_head;
-    for (size_t i = 0; i < index; i++) curr = curr->next;
+    for (size_t i = 0; i <= index; i++) curr = curr->next;
     return curr->value;
 }
 
@@ -260,15 +271,23 @@ forward_list<T> forward_list<T>::slice(size_t start, size_t end) {
 }
 
 template <typename T>
-forward_list<T>* forward_list<T>::insert_after(iterator place, const T& value){
+forward_list<T>* forward_list<T>::insert_after(const_iterator place, const T& value){
     node* new_node = new node(value);
+    if (length == 0) {
+    M_head->next = new node(value);
+    tail = M_head->next;
+    length = 1;
+    return this;
+    }
     if (place == iterator(tail)){
         tail->next = new_node; 
         tail = new_node;
+        length++;
         return this;
     }else if(place == before_begin()){
         new_node->next = M_head->next;
         M_head->next = new_node;
+        length++;
         return this;
     }
     iterator current = begin();
@@ -283,5 +302,6 @@ forward_list<T>* forward_list<T>::insert_after(iterator place, const T& value){
     }
     new_node->next = curr_node->next;
     curr_node->next = new_node;
+    length++;
     return this;
 }

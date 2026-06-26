@@ -27,10 +27,7 @@ immutable_list_seq<T>::~immutable_list_seq() { delete list; }
 template<typename T>
 immutable_list_seq<T>& immutable_list_seq<T>::operator=(const immutable_list_seq& other) {
     if (this != &other) {
-        forward_list<T>* new_list = new forward_list<T>(*other.list);
-        if (new_list == nullptr) throw null_ptr();
-        delete list;
-        list = new_list;
+        list = other.list;
     }
     return *this;
 }
@@ -46,12 +43,12 @@ immutable_list_seq<T>::immutable_list_seq(const std::initializer_list<T> initial
 
 template<typename T>
 T immutable_list_seq<T>::front() const {
-    return list->get_first();
+    return list->front();
 }
 
 template<typename T>
 T immutable_list_seq<T>::back() const {
-    return list->get_last();
+    return list->back();
 }
 
 template<typename T>
@@ -61,27 +58,27 @@ size_t immutable_list_seq<T>::size() const {
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::push_back(const T& item) {
-    immutable_list_seq<T>* result = new immutable_list_seq<T>();
-    result->list->insert_after(list->before_end(), item);
+    immutable_list_seq<T>* result = new immutable_list_seq<T>(*this);
+    result->list->insert_after(result->list->before_end(), item);
     return result;
 }
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::push_front(const T& item) {
-    immutable_list_seq<T>* result = new immutable_list_seq<T>();
-    result->list->insert_after(list->before_begin(), item);
+    immutable_list_seq<T>* result = new immutable_list_seq<T>(*this);
+    result->list->insert_after(result->list->before_begin(), item);
     return result;
 }
 
 template<typename T>
 sequence<T>* immutable_list_seq<T>::insert(const T& item, size_t index) {
-    immutable_list_seq<T>* result = new immutable_list_seq<T>();
-    result->list->insert_after(list->before_begin() + index, item);
+    immutable_list_seq<T>* result = new immutable_list_seq<T>(*this);
+    result->list->insert_after(result->list->before_begin() + index, item);
     return result;
 }
 
 template<typename T>
-immutable_list_seq<T>* immutable_list_seq<T>::insert(iterator place, const T& item) {
+immutable_list_seq<T>* immutable_list_seq<T>::insert(const_iterator place, const T& item) {
     immutable_list_seq<T>* result = new immutable_list_seq<T>(*this);
     if (place == end()){return this->push_back(item);}
     if (place == begin()){return this->push_front(item);}
@@ -93,7 +90,7 @@ immutable_list_seq<T>* immutable_list_seq<T>::insert(iterator place, const T& it
             return result;
         }
     }
-    throw place_out_of_range();
+    throw iterator_out_of_range();
 }
 
 template<typename T>
@@ -166,7 +163,7 @@ sequence<T>* immutable_list_seq<T>::where(Func f) {
 template<typename T>
 template <typename Func, typename U>
 U immutable_list_seq<T>::reduce(Func f, U initial) const {
-    if (list->size() == 0) throw empty_container();
+    if (list->size() == 0) {return initial;}
     U acc = f(initial, (*list)[0]);
     for (size_t i = 1; i < list->size(); ++i) {
         acc = f(acc, (*list)[i]);

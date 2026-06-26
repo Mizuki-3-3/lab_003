@@ -7,10 +7,10 @@ template<typename T>
 dyn_arr<T>::iterator::iterator(T* ptr): current(ptr){}
 
 template<typename T>
-T& dyn_arr<T>::iterator::operator*(){return *current;}
+T& dyn_arr<T>::iterator::operator*() const {return *current;}
 
 template<typename T>
-T* dyn_arr<T>::iterator::operator->(){ return current;}
+T* dyn_arr<T>::iterator::operator->()const { return current;}
 
 template<typename T>
 auto dyn_arr<T>::iterator::operator++() -> dyn_arr<T>::iterator&{
@@ -55,7 +55,7 @@ auto dyn_arr<T>::iterator::operator+=(std::ptrdiff_t n) -> dyn_arr<T>::iterator&
 
 template<typename T>
 auto dyn_arr<T>::iterator::operator+(std::ptrdiff_t n) -> dyn_arr<T>::iterator{
-    returniterator(current + n);
+    return iterator(current + n);
 }
 
 template<typename T>
@@ -65,7 +65,7 @@ auto dyn_arr<T>::iterator::operator-=(std::ptrdiff_t n) -> dyn_arr<T>::iterator&
 }
 template<typename T>
 auto dyn_arr<T>::iterator::operator-(std::ptrdiff_t n) -> dyn_arr<T>::iterator{
-    returniterator(current - n);
+    return iterator(current - n);
 }
 
 template<typename T>
@@ -88,13 +88,13 @@ bool dyn_arr<T>::iterator::operator>=(const iterator& other) const{return !(*thi
 //const_iterator
 
 template<typename T>
-dyn_arr<T>::const_iterator::const_iterator(T* ptr): current(ptr){}
+dyn_arr<T>::const_iterator::const_iterator(const T* ptr): current(ptr){}
 
 template<typename T>
-T& dyn_arr<T>::const_iterator::operator*(){return *current;}
+const T& dyn_arr<T>::const_iterator::operator*() const {return *current;}
 
 template<typename T>
-T* dyn_arr<T>::const_iterator::operator->(){ return current;}
+const T* dyn_arr<T>::const_iterator::operator->(){ return current;}
 
 template<typename T>
 auto dyn_arr<T>::const_iterator::operator++() -> dyn_arr<T>::const_iterator&{
@@ -139,7 +139,7 @@ auto dyn_arr<T>::const_iterator::operator+=(std::ptrdiff_t n) -> dyn_arr<T>::con
 
 template<typename T>
 auto dyn_arr<T>::const_iterator::operator+(std::ptrdiff_t n) -> dyn_arr<T>::const_iterator{
-    returniterator(current+n);
+    return const_iterator(current+n);
 }
 
 template<typename T>
@@ -149,7 +149,7 @@ auto dyn_arr<T>::const_iterator::operator-=(std::ptrdiff_t n) -> dyn_arr<T>::con
 }
 template<typename T>
 auto dyn_arr<T>::const_iterator::operator-(std::ptrdiff_t n)-> dyn_arr<T>::const_iterator{
-    returniterator(current-n);
+    return const_iterator(current-n);
 }
 
 template<typename T>
@@ -189,7 +189,7 @@ dyn_arr<T>::dyn_arr(const T* items, size_t initial_size) : data(new T[initial_si
 template<typename T>
 dyn_arr<T>::dyn_arr(const dyn_arr& other) : data(new T[other.length]), length(other.length) {
     if (data == nullptr) throw null_ptr();
-    for (size_t i = 0; i < length; ++i)
+    for (size_t i = 0; i < length; i++)
         data[i] = other.data[i];
 }
 
@@ -200,9 +200,10 @@ dyn_arr<T>::dyn_arr(const dyn_arr&& move){
 }
 
 template<typename T>
-dyn_arr<T>::dyn_arr(const std::initializer_list<T> initial_l): data(new T[initial_l.size()]), length(initial_l.size()){
-    for (size_t i = 0; i < length; i++){
-        data[i] = initial_l[i];
+dyn_arr<T>::dyn_arr(const std::initializer_list<T> initial_l) : data(new T[initial_l.size()]), length(initial_l.size()) {
+    size_t i = 0;
+    for (const T& val : initial_l) {
+        data[i++] = val;
     }
 }
 

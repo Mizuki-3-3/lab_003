@@ -33,14 +33,14 @@ public:
     sequence<T>* concat(sequence<T>* other) override;
     sequence<T>* get_subsequence(size_t start, size_t end) const override;
 
-    immutable_list_seq<T>* insert( iterator place, const T& item);
+    immutable_list_seq<T>* insert( const_iterator place, const T& item);
 
     iterator find(const T& value);
     const_iterator find(const T& value) const;
 
     T& operator[](size_t index) override;
     const T& operator[](size_t index) const override;
-
+    
     auto begin() { return list->begin(); }
     auto end()   { return list->end(); }
     auto begin() const { return list->begin(); }
@@ -55,3 +55,4 @@ public:
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
 };
+#include "immutable_list_seq.tpp"

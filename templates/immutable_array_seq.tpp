@@ -1,5 +1,7 @@
+#include "dyn_arr.hpp"
 #include "immutable_array_seq.hpp"
 #include "errors.hpp"
+#include "sequence.hpp"
 
 template<typename T>
 immutable_array_seq<T>::immutable_array_seq(): arr(new dyn_arr<T>()) {}
@@ -15,9 +17,10 @@ immutable_array_seq<T>::immutable_array_seq(const T* items, size_t count) : arr(
 }
 
 template<typename T>
-immutable_array_seq<T>::immutable_array_seq(const immutable_array_seq& other) : arr(new dyn_arr<T>(*other.arr)) {
-    if (arr == nullptr) throw null_ptr();
-}
+immutable_array_seq<T>::immutable_array_seq(const immutable_array_seq& other) : arr(new dyn_arr<T>(*other.arr)) {}
+
+template<typename T>
+immutable_array_seq<T>::immutable_array_seq(const dyn_arr<T>& other) : arr(new dyn_arr<T>(other)) {}
 
 template<typename T>
 immutable_array_seq<T>::immutable_array_seq(const immutable_array_seq<T>&& move){
@@ -33,10 +36,7 @@ immutable_array_seq<T>::~immutable_array_seq() { delete arr; }
 template<typename T>
 immutable_array_seq<T>& immutable_array_seq<T>::operator=(const immutable_array_seq& other) {
     if (this != &other) {
-        dyn_arr<T>* new_arr = new dyn_arr<T>(*other.arr);
-        if (new_arr == nullptr) throw null_ptr();
-        delete arr;
-        arr = new_arr;
+        arr = other.arr;
     }
     return *this;
 }
@@ -126,7 +126,7 @@ sequence<T>* immutable_array_seq<T>::get_subsequence(size_t start, size_t end) c
 }
 
 template<typename T>
-immutable_array_seq<T>* immutable_array_seq<T>::insert(const T& item, iterator index){
+immutable_array_seq<T>* immutable_array_seq<T>::insert(const_iterator index, const T& item){
     size_t idx = index - arr->begin();
     return this->insert(item, idx);
 }
@@ -158,7 +158,7 @@ sequence<T>* immutable_array_seq<T>::where(Func f) {
     dyn_arr<T>* new_data = new dyn_arr<T>(arr->size());
     if (!new_data) throw null_ptr();
     size_t pos = 0;
-    for (size_t i = 0; i < arr->size(); ++i) {
+    for (size_t i = 0; i < arr->size(); i++) {
         if (f((*arr)[i])) {
             (*new_data)[pos++] = (*arr)[i];
         }
@@ -173,7 +173,7 @@ sequence<T>* immutable_array_seq<T>::where(Func f) {
 template<typename T>
 template <typename Func, typename U>
 U immutable_array_seq<T>::reduce(Func f, U initial) const {
-    if (arr->size() == 0) throw empty_container();
+    if (arr->size() == 0){return initial;}
     U acc = f(initial, (*arr)[0]);
     for (size_t i = 1; i < arr->size(); ++i) {
         acc = f(acc, (*arr)[i]);

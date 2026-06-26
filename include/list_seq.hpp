@@ -33,7 +33,7 @@ public:
     sequence<T>* concat(sequence<T>* other) override;
     sequence<T>* get_subsequence(size_t start, size_t end) const override;
 
-    list_seq<T>* insert(iterator place, const T& item);
+    iterator insert(const_iterator place, const T& item);
 
     T& operator[](size_t index) override;
     const T& operator[](size_t index) const override;
@@ -55,3 +55,4 @@ public:
     template <typename Func, typename U>
     U reduce(Func f, U initial) const;
 };
+#include "list_seq.tpp"
